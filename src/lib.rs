@@ -117,6 +117,7 @@ mod pc_file;
 mod port;
 mod target_triplet;
 mod vcpkg_target;
+mod env_vars;
 
 pub use config::Config;
 pub use error::Error;
@@ -865,6 +866,8 @@ mod tests {
 
     #[test]
     fn custom_target_triplet_by_env_no_default() {
+        use env_vars::vcpkg_rs::VCPKGRS_TRIPLET;
+
         let _g = LOCK.lock();
 
         clean_env();
@@ -878,15 +881,17 @@ mod tests {
         println!("Result with inference is {:?}", &harfbuzz);
         assert!(harfbuzz.is_err());
 
-        env::set_var("VCPKGRS_TRIPLET", "x64-osx");
+        env::set_var(VCPKGRS_TRIPLET, "x64-osx");
         let harfbuzz = ::find_package("harfbuzz").unwrap();
-        println!("Result with setting VCPKGRS_TRIPLET is {:?}", &harfbuzz);
+        println!("Result with setting {} is {:?}", VCPKGRS_TRIPLET, &harfbuzz);
         assert_eq!(harfbuzz.vcpkg_triplet, "x64-osx");
         clean_env();
     }
 
     #[test]
     fn custom_target_triplet_by_env_with_default() {
+        use env_vars::vcpkg_rs::VCPKGRS_TRIPLET;
+
         let _g = LOCK.lock();
 
         clean_env();
@@ -900,9 +905,9 @@ mod tests {
         println!("Result with inference is {:?}", &harfbuzz);
         assert_eq!(harfbuzz.vcpkg_triplet, "arm64-ios");
 
-        env::set_var("VCPKGRS_TRIPLET", "x64-osx");
+        env::set_var(VCPKGRS_TRIPLET, "x64-osx");
         let harfbuzz = ::find_package("harfbuzz").unwrap();
-        println!("Result with setting VCPKGRS_TRIPLET is {:?}", &harfbuzz);
+        println!("Result with setting {} is {:?}", VCPKGRS_TRIPLET, &harfbuzz);
         assert_eq!(harfbuzz.vcpkg_triplet, "x64-osx");
         clean_env();
     }
@@ -1127,6 +1132,8 @@ mod tests {
     }
 
     fn clean_env() {
+        use env_vars::vcpkg_rs::VCPKGRS_TRIPLET;
+
         env::remove_var("TARGET");
         env::remove_var("VCPKG_ROOT");
         env::remove_var("VCPKGRS_DYNAMIC");
@@ -1134,7 +1141,7 @@ mod tests {
         env::remove_var("CARGO_CFG_TARGET_FEATURE");
         env::remove_var("VCPKGRS_DISABLE");
         env::remove_var("VCPKGRS_NO_LIBMYSQL");
-        env::remove_var("VCPKGRS_TRIPLET");
+        env::remove_var(VCPKGRS_TRIPLET);
     }
 
     // path to a to vcpkg installation to test against
