@@ -1150,6 +1150,7 @@ mod tests {
 
     fn clean_env() {
         use env_vars::vcpkg_rs::{VCPKGRS_TRIPLET, VCPKGRS_DISABLE, VCPKGRS_DYNAMIC};
+        use env_vars::vcpkg_rs::prefix::VCPKGRS_NO_;
 
         env::remove_var("TARGET");
         env::remove_var("VCPKG_ROOT");
@@ -1157,7 +1158,7 @@ mod tests {
         env::remove_var("RUSTFLAGS");
         env::remove_var("CARGO_CFG_TARGET_FEATURE");
         env::remove_var(VCPKGRS_DISABLE);
-        env::remove_var("VCPKGRS_NO_LIBMYSQL");
+        env::remove_var(format!("{}_LIBMYSQL", VCPKGRS_NO_));
         env::remove_var(VCPKGRS_TRIPLET);
         // should this function clean VCPKGRS_NO_FOO?
     }
