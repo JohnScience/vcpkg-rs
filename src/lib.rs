@@ -128,8 +128,7 @@ pub(crate) use target_triplet::TargetTriplet;
 pub(crate) use vcpkg_target::VcpkgTarget;
 
 use pc_file::{PcFile, PcFiles};
-use env_vars::cargo::build_rs::{OUT_DIR, CARGO_CFG_TARGET_FEATURE};
-use env_vars::cargo::reads::RUSTFLAGS;
+use env_vars::prelude::*;
 
 /// Deprecated in favor of the find_package function
 #[doc(hidden)]
@@ -151,8 +150,6 @@ pub fn find_package(package: &str) -> Result<Library, Error> {
 /// Find the vcpkg root
 #[doc(hidden)]
 pub fn find_vcpkg_root(cfg: &Config) -> Result<PathBuf, Error> {
-    use crate::env_vars::vcpkg_rs::VCPKG_ROOT;
-
     // prefer the setting from the use if there is one
     if let &Some(ref path) = &cfg.vcpkg_root {
         return Ok(path.clone());
@@ -516,9 +513,6 @@ pub(crate) fn envify(name: &str) -> String {
 }
 
 pub(crate) fn msvc_target() -> Result<TargetTriplet, Error> {
-    use env_vars::cargo::build_rs::TARGET;
-    use env_vars::vcpkg_rs::VCPKGRS_DYNAMIC;
-
     let is_definitely_dynamic = env::var(VCPKGRS_DYNAMIC).is_ok();
     let target = env::var(TARGET).unwrap_or(String::new());
     let is_static = env::var(CARGO_CFG_TARGET_FEATURE)
@@ -636,12 +630,7 @@ mod tests {
     use std::env;
     use std::sync::Mutex;
 
-    use env_vars::cargo::build_rs::TARGET;
-    use env_vars::vcpkg_rs::prefix::VCPKGRS_NO_;
-    use env_vars::vcpkg_rs::{
-        ARBITRARY_VCPKGRS_NO_FOO, NO_VCPKG, VCPKGRS_DISABLE, VCPKGRS_DYNAMIC, VCPKGRS_TRIPLET,
-        VCPKG_ROOT,
-    };
+    use env_vars::prelude::*;
 
     lazy_static! {
         static ref LOCK: Mutex<()> = Mutex::new(());
@@ -1151,7 +1140,7 @@ mod tests {
         env::remove_var(RUSTFLAGS);
         env::remove_var(CARGO_CFG_TARGET_FEATURE);
         env::remove_var(VCPKGRS_DISABLE);
-        env::remove_var(format!("{}_LIBMYSQL", VCPKGRS_NO_));
+        env::remove_var(format!("{}_LIBMYSQL", prefix::VCPKGRS_NO_));
         env::remove_var(VCPKGRS_TRIPLET);
     }
 

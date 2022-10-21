@@ -16,29 +16,42 @@ pub(crate) mod build_rs {
     /// Also, it is the folder in which all output and intermediate artifacts should be placed.
     /// This folder is inside the build directory for the package being built,
     /// and it is unique for the package in question.
-    /// 
+    ///
     /// [set by Cargo for build scripts]: https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts
     /// [`OUT_DIR`]: https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts:~:text=target%20features%20enabled.-,OUT_DIR,-%E2%80%94%20the%20folder%20in
     pub(crate) const OUT_DIR: &'static str = "OUT_DIR";
 
     /// The [`CARGO_CFG_TARGET_FEATURE`] environment variable which is [set by Cargo for build scripts].
     /// Also, the list of CPU [target features] enabled.
-    /// 
+    ///
     /// [set by Cargo for build scripts]: https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts
     /// [`CARGO_CFG_TARGET_FEATURE`]: https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-reads:~:text=CARGO_CFG_TARGET_FEATURE
     /// [target features]: https://doc.rust-lang.org/reference/conditional-compilation.html#target_feature
     pub(crate) const CARGO_CFG_TARGET_FEATURE: &'static str = "CARGO_CFG_TARGET_FEATURE";
+
+    pub(crate) mod prelude {
+        pub(crate) use super::*;
+    }
 }
 
 /// This module contains the environment variables that are used by this crate
 /// and [Cargo reads].
-/// 
+///
 /// [Cargo reads]: https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-reads
 pub(crate) mod reads {
     /// The [`RUSTFLAGS`] environment variable which is read by Cargo.
     /// Also, a space-separated list of custom flags to pass to all compiler invocations that Cargo performs.
-    /// 
+    ///
     /// [read by Cargo]: https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-reads
     /// [`RUSTFLAGS`]: https://doc.rust-lang.org/cargo/reference/environment-variables.html#:~:text=that%20Cargo%20performs.-,RUSTFLAGS,-%E2%80%94%20A%20space%2Dseparated
     pub(crate) const RUSTFLAGS: &'static str = "RUSTFLAGS";
+
+    pub(crate) mod prelude {
+        pub(crate) use super::*;
+    }
+}
+
+pub(crate) mod prelude {
+    pub(crate) use super::build_rs::prelude::*;
+    pub(crate) use super::reads::prelude::*;
 }

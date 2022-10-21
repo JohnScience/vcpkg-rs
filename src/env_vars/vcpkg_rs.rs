@@ -16,3 +16,7 @@ pub(crate) mod prefix {
 pub(crate) mod suffix {
     pub(crate) const _NO_VCPKG: &'static str = "_NO_VCPKG";
 }
+
+pub(crate) mod prelude {
+    pub(crate) use super::*;
+}
