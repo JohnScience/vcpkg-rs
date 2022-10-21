@@ -38,7 +38,7 @@ impl PcFiles {
             let pc_file = try!(PcFile::parse_pc_file(vcpkg_target, &dir_entry.path()));
             files.insert(pc_file.id.to_owned(), pc_file);
         }
-        Ok(PcFiles { files: files })
+        Ok(PcFiles { files })
     }
 
     /// Use the .pc files as a hint to the library sort order.
