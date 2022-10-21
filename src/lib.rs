@@ -487,7 +487,7 @@ fn load_ports(target: &VcpkgTarget) -> Result<BTreeMap<String, Port>, Error> {
                         let port = Port {
                             dlls: lib_info.0,
                             libs: lib_info.1,
-                            deps: deps,
+                            deps,
                         };
 
                         ports.insert(name.to_string(), port);
