@@ -655,14 +655,14 @@ mod tests {
 
     #[test]
     fn do_nothing_for_bailout_variables_set() {
-        use env_vars::vcpkg_rs::VCPKGRS_NO_FOO;
+        use env_vars::vcpkg_rs::{VCPKGRS_NO_FOO, VCPKGRS_DISABLE};
 
         let _g = LOCK.lock();
         env::set_var("VCPKG_ROOT", "/");
         env::set_var("TARGET", "x86_64-pc-windows-msvc");
 
         for &var in &[
-            "VCPKGRS_DISABLE",
+            VCPKGRS_DISABLE,
             VCPKGRS_NO_FOO,
             "FOO_NO_VCPKG",
             "NO_VCPKG",
@@ -1134,14 +1134,14 @@ mod tests {
     }
 
     fn clean_env() {
-        use env_vars::vcpkg_rs::VCPKGRS_TRIPLET;
+        use env_vars::vcpkg_rs::{VCPKGRS_TRIPLET, VCPKGRS_DISABLE};
 
         env::remove_var("TARGET");
         env::remove_var("VCPKG_ROOT");
         env::remove_var("VCPKGRS_DYNAMIC");
         env::remove_var("RUSTFLAGS");
         env::remove_var("CARGO_CFG_TARGET_FEATURE");
-        env::remove_var("VCPKGRS_DISABLE");
+        env::remove_var(VCPKGRS_DISABLE);
         env::remove_var("VCPKGRS_NO_LIBMYSQL");
         env::remove_var(VCPKGRS_TRIPLET);
         // should this function clean VCPKGRS_NO_FOO?
