@@ -111,13 +111,13 @@ use std::io::{BufRead, BufReader, Read};
 use std::path::{Path, PathBuf};
 
 mod config;
+mod env_vars;
 mod error;
 mod library;
 mod pc_file;
 mod port;
 mod target_triplet;
 mod vcpkg_target;
-mod env_vars;
 
 pub use config::Config;
 pub use error::Error;
@@ -882,7 +882,7 @@ mod tests {
 
     #[test]
     fn custom_target_triplet_by_env_no_default() {
-        use env_vars::vcpkg_rs::{VCPKGRS_TRIPLET, VCPKGRS_DYNAMIC};
+        use env_vars::vcpkg_rs::{VCPKGRS_DYNAMIC, VCPKGRS_TRIPLET};
 
         let _g = LOCK.lock();
 
@@ -906,7 +906,7 @@ mod tests {
 
     #[test]
     fn custom_target_triplet_by_env_with_default() {
-        use env_vars::vcpkg_rs::{VCPKGRS_TRIPLET, VCPKGRS_DYNAMIC};
+        use env_vars::vcpkg_rs::{VCPKGRS_DYNAMIC, VCPKGRS_TRIPLET};
 
         let _g = LOCK.lock();
 
@@ -1148,8 +1148,8 @@ mod tests {
     }
 
     fn clean_env() {
-        use env_vars::vcpkg_rs::{VCPKGRS_TRIPLET, VCPKGRS_DISABLE, VCPKGRS_DYNAMIC};
         use env_vars::vcpkg_rs::prefix::VCPKGRS_NO_;
+        use env_vars::vcpkg_rs::{VCPKGRS_DISABLE, VCPKGRS_DYNAMIC, VCPKGRS_TRIPLET};
 
         env::remove_var("TARGET");
         env::remove_var("VCPKG_ROOT");
