@@ -1,5 +1,7 @@
 use std::path::PathBuf;
 
+use crate::TargetTriplet;
+
 /// paths and triple for the chosen target
 pub(crate) struct VcpkgTarget {
     pub(crate) lib_path: PathBuf,
