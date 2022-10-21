@@ -512,7 +512,9 @@ pub(crate) fn envify(name: &str) -> String {
 }
 
 pub(crate) fn msvc_target() -> Result<TargetTriplet, Error> {
-    let is_definitely_dynamic = env::var("VCPKGRS_DYNAMIC").is_ok();
+    use env_vars::vcpkg_rs::VCPKGRS_DYNAMIC;
+
+    let is_definitely_dynamic = env::var(VCPKGRS_DYNAMIC).is_ok();
     let target = env::var("TARGET").unwrap_or(String::new());
     let is_static = env::var("CARGO_CFG_TARGET_FEATURE")
         .unwrap_or(String::new()) // rustc 1.10
@@ -718,11 +720,13 @@ mod tests {
 
     #[test]
     fn dynamic_build_finds_lib() {
+        use env_vars::vcpkg_rs::VCPKGRS_DYNAMIC;
+
         let _g = LOCK.lock();
         clean_env();
         env::set_var("VCPKG_ROOT", vcpkg_test_tree_loc("no-status"));
         env::set_var("TARGET", "x86_64-pc-windows-msvc");
-        env::set_var("VCPKGRS_DYNAMIC", "1");
+        env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir().unwrap();
         env::set_var("OUT_DIR", tmp_dir.path());
 
@@ -736,11 +740,13 @@ mod tests {
 
     #[test]
     fn handle_multiline_description() {
+        use env_vars::vcpkg_rs::VCPKGRS_DYNAMIC;
+
         let _g = LOCK.lock();
         clean_env();
         env::set_var("VCPKG_ROOT", vcpkg_test_tree_loc("multiline-description"));
         env::set_var("TARGET", "i686-pc-windows-msvc");
-        env::set_var("VCPKGRS_DYNAMIC", "1");
+        env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir().unwrap();
         env::set_var("OUT_DIR", tmp_dir.path());
 
@@ -754,11 +760,13 @@ mod tests {
 
     #[test]
     fn link_libs_required_by_optional_features() {
+        use env_vars::vcpkg_rs::VCPKGRS_DYNAMIC;
+
         let _g = LOCK.lock();
         clean_env();
         env::set_var("VCPKG_ROOT", vcpkg_test_tree_loc("normalized"));
         env::set_var("TARGET", "i686-pc-windows-msvc");
-        env::set_var("VCPKGRS_DYNAMIC", "1");
+        env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir().unwrap();
         env::set_var("OUT_DIR", tmp_dir.path());
 
@@ -776,6 +784,8 @@ mod tests {
 
     #[test]
     fn link_lib_name_is_correct() {
+        use env_vars::vcpkg_rs::VCPKGRS_DYNAMIC;
+
         let _g = LOCK.lock();
 
         for target in &[
@@ -787,7 +797,7 @@ mod tests {
             clean_env();
             env::set_var("VCPKG_ROOT", vcpkg_test_tree_loc("normalized"));
             env::set_var("TARGET", target);
-            env::set_var("VCPKGRS_DYNAMIC", "1");
+            env::set_var(VCPKGRS_DYNAMIC, "1");
             let tmp_dir = tempdir().unwrap();
             env::set_var("OUT_DIR", tmp_dir.path());
 
@@ -806,11 +816,13 @@ mod tests {
 
     #[test]
     fn link_dependencies_after_port() {
+        use env_vars::vcpkg_rs::VCPKGRS_DYNAMIC;
+
         let _g = LOCK.lock();
         clean_env();
         env::set_var("VCPKG_ROOT", vcpkg_test_tree_loc("normalized"));
         env::set_var("TARGET", "i686-pc-windows-msvc");
-        env::set_var("VCPKGRS_DYNAMIC", "1");
+        env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir().unwrap();
         env::set_var("OUT_DIR", tmp_dir.path());
 
@@ -846,12 +858,14 @@ mod tests {
 
     #[test]
     fn custom_target_triplet_in_config() {
+        use env_vars::vcpkg_rs::VCPKGRS_DYNAMIC;
+
         let _g = LOCK.lock();
 
         clean_env();
         env::set_var("VCPKG_ROOT", vcpkg_test_tree_loc("normalized"));
         env::set_var("TARGET", "aarch64-apple-ios");
-        env::set_var("VCPKGRS_DYNAMIC", "1");
+        env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir().unwrap();
         env::set_var("OUT_DIR", tmp_dir.path());
 
@@ -869,14 +883,14 @@ mod tests {
 
     #[test]
     fn custom_target_triplet_by_env_no_default() {
-        use env_vars::vcpkg_rs::VCPKGRS_TRIPLET;
+        use env_vars::vcpkg_rs::{VCPKGRS_TRIPLET, VCPKGRS_DYNAMIC};
 
         let _g = LOCK.lock();
 
         clean_env();
         env::set_var("VCPKG_ROOT", vcpkg_test_tree_loc("normalized"));
         env::set_var("TARGET", "aarch64-apple-doesnotexist");
-        env::set_var("VCPKGRS_DYNAMIC", "1");
+        env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir().unwrap();
         env::set_var("OUT_DIR", tmp_dir.path());
 
@@ -893,14 +907,14 @@ mod tests {
 
     #[test]
     fn custom_target_triplet_by_env_with_default() {
-        use env_vars::vcpkg_rs::VCPKGRS_TRIPLET;
+        use env_vars::vcpkg_rs::{VCPKGRS_TRIPLET, VCPKGRS_DYNAMIC};
 
         let _g = LOCK.lock();
 
         clean_env();
         env::set_var("VCPKG_ROOT", vcpkg_test_tree_loc("normalized"));
         env::set_var("TARGET", "aarch64-apple-ios");
-        env::set_var("VCPKGRS_DYNAMIC", "1");
+        env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir().unwrap();
         env::set_var("OUT_DIR", tmp_dir.path());
 
@@ -1135,11 +1149,11 @@ mod tests {
     }
 
     fn clean_env() {
-        use env_vars::vcpkg_rs::{VCPKGRS_TRIPLET, VCPKGRS_DISABLE};
+        use env_vars::vcpkg_rs::{VCPKGRS_TRIPLET, VCPKGRS_DISABLE, VCPKGRS_DYNAMIC};
 
         env::remove_var("TARGET");
         env::remove_var("VCPKG_ROOT");
-        env::remove_var("VCPKGRS_DYNAMIC");
+        env::remove_var(VCPKGRS_DYNAMIC);
         env::remove_var("RUSTFLAGS");
         env::remove_var("CARGO_CFG_TARGET_FEATURE");
         env::remove_var(VCPKGRS_DISABLE);
