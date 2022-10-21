@@ -1,9 +1,12 @@
-use std::path::{Path, PathBuf};
-use std::env;
 use std::collections::BTreeMap;
+use std::env;
 use std::fs;
+use std::path::{Path, PathBuf};
 
-use crate::{TargetTriplet, Error, Library, Port, VcpkgTarget, msvc_target, envify, find_vcpkg_target, load_ports, remove_item};
+use crate::{
+    envify, find_vcpkg_target, load_ports, msvc_target, remove_item, Error, Library, Port,
+    TargetTriplet, VcpkgTarget,
+};
 
 /// Configuration options for finding packages, setting up the tree and emitting metadata to cargo
 #[derive(Default)]
