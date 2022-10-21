@@ -118,8 +118,8 @@ mod port;
 mod target_triplet;
 mod vcpkg_target;
 
-pub use error::Error;
 pub use config::Config;
+pub use error::Error;
 pub use library::Library;
 
 pub(crate) use port::Port;
