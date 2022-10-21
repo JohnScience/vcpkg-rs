@@ -1,4 +1,4 @@
-/// This module contains the environment variables that are being used by
+/// This module contains the environment variables that are used by
 /// this crate and are [set by Cargo for build scripts].
 ///
 /// [variables that Cargo sets for build scripts]: https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts
@@ -20,4 +20,17 @@ pub(crate) mod build_rs {
     /// [set by Cargo for build script]: https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts
     /// [`OUT_DIR`]: https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts:~:text=target%20features%20enabled.-,OUT_DIR,-%E2%80%94%20the%20folder%20in
     pub(crate) const OUT_DIR: &'static str = "OUT_DIR";
+}
+
+/// This module contains the environment variables that are used by this crate
+/// and [Cargo reads].
+/// 
+/// [Cargo reads]: https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-reads
+pub(crate) mod reads {
+    /// The [`RUSTFLAGS`] environment variable which is read by Cargo.
+    /// Also, a space-separated list of custom flags to pass to all compiler invocations that Cargo performs.
+    /// 
+    /// [read by Cargo]: https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-reads
+    /// [`RUSTFLAGS`]: https://doc.rust-lang.org/cargo/reference/environment-variables.html#:~:text=that%20Cargo%20performs.-,RUSTFLAGS,-%E2%80%94%20A%20space%2Dseparated
+    pub(crate) const RUSTFLAGS: &'static str = "RUSTFLAGS";
 }

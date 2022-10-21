@@ -129,6 +129,7 @@ pub(crate) use vcpkg_target::VcpkgTarget;
 
 use pc_file::{PcFile, PcFiles};
 use env_vars::cargo::build_rs::OUT_DIR;
+use env_vars::cargo::reads::RUSTFLAGS;
 
 /// Deprecated in favor of the find_package function
 #[doc(hidden)]
@@ -1148,7 +1149,7 @@ mod tests {
         env::remove_var(TARGET);
         env::remove_var(VCPKG_ROOT);
         env::remove_var(VCPKGRS_DYNAMIC);
-        env::remove_var("RUSTFLAGS");
+        env::remove_var(RUSTFLAGS);
         env::remove_var("CARGO_CFG_TARGET_FEATURE");
         env::remove_var(VCPKGRS_DISABLE);
         env::remove_var(format!("{}_LIBMYSQL", VCPKGRS_NO_));
