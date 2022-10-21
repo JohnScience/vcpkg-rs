@@ -514,9 +514,10 @@ pub(crate) fn envify(name: &str) -> String {
 
 pub(crate) fn msvc_target() -> Result<TargetTriplet, Error> {
     use env_vars::vcpkg_rs::VCPKGRS_DYNAMIC;
+    use env_vars::cargo::build_rs::TARGET;
 
     let is_definitely_dynamic = env::var(VCPKGRS_DYNAMIC).is_ok();
-    let target = env::var("TARGET").unwrap_or(String::new());
+    let target = env::var(TARGET).unwrap_or(String::new());
     let is_static = env::var("CARGO_CFG_TARGET_FEATURE")
         .unwrap_or(String::new()) // rustc 1.10
         .contains("crt-static");
@@ -640,32 +641,34 @@ mod tests {
     #[test]
     fn do_nothing_for_unsupported_target() {
         use env_vars::vcpkg_rs::VCPKG_ROOT;
+        use env_vars::cargo::build_rs::TARGET;
 
         let _g = LOCK.lock();
         env::set_var(VCPKG_ROOT, "/");
-        env::set_var("TARGET", "x86_64-pc-windows-gnu");
+        env::set_var(TARGET, "x86_64-pc-windows-gnu");
         assert!(match ::probe_package("foo") {
             Err(Error::NotMSVC) => true,
             _ => false,
         });
 
-        env::set_var("TARGET", "x86_64-pc-windows-gnu");
-        assert_eq!(env::var("TARGET"), Ok("x86_64-pc-windows-gnu".to_string()));
+        env::set_var(TARGET, "x86_64-pc-windows-gnu");
+        assert_eq!(env::var(TARGET), Ok("x86_64-pc-windows-gnu".to_string()));
         assert!(match ::probe_package("foo") {
             Err(Error::NotMSVC) => true,
             _ => false,
         });
-        env::remove_var("TARGET");
+        env::remove_var(TARGET);
         env::remove_var(VCPKG_ROOT);
     }
 
     #[test]
     fn do_nothing_for_bailout_variables_set() {
         use env_vars::vcpkg_rs::{ARBITRARY_VCPKGRS_NO_FOO, VCPKGRS_DISABLE, NO_VCPKG, VCPKG_ROOT};
+        use env_vars::cargo::build_rs::TARGET;
 
         let _g = LOCK.lock();
         env::set_var(VCPKG_ROOT, "/");
-        env::set_var("TARGET", "x86_64-pc-windows-msvc");
+        env::set_var(TARGET, "x86_64-pc-windows-msvc");
 
         for &var in &[
             VCPKGRS_DISABLE,
@@ -680,7 +683,7 @@ mod tests {
             });
             env::remove_var(var);
         }
-        env::remove_var("TARGET");
+        env::remove_var(TARGET);
         env::remove_var(VCPKG_ROOT);
     }
 
@@ -703,11 +706,12 @@ mod tests {
     #[test]
     fn static_build_finds_lib() {
         use env_vars::vcpkg_rs::VCPKG_ROOT;
+        use env_vars::cargo::build_rs::TARGET;
 
         let _g = LOCK.lock();
         clean_env();
         env::set_var("VCPKG_ROOT", vcpkg_test_tree_loc("normalized"));
-        env::set_var("TARGET", "x86_64-pc-windows-msvc");
+        env::set_var(TARGET, "x86_64-pc-windows-msvc");
         let tmp_dir = tempdir().unwrap();
         env::set_var(VCPKG_ROOT, tmp_dir.path());
 
@@ -726,11 +730,12 @@ mod tests {
     #[test]
     fn dynamic_build_finds_lib() {
         use env_vars::vcpkg_rs::{VCPKGRS_DYNAMIC, VCPKG_ROOT};
+        use env_vars::cargo::build_rs::TARGET;
 
         let _g = LOCK.lock();
         clean_env();
         env::set_var(VCPKG_ROOT, vcpkg_test_tree_loc("no-status"));
-        env::set_var("TARGET", "x86_64-pc-windows-msvc");
+        env::set_var(TARGET, "x86_64-pc-windows-msvc");
         env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir().unwrap();
         env::set_var("OUT_DIR", tmp_dir.path());
@@ -746,11 +751,12 @@ mod tests {
     #[test]
     fn handle_multiline_description() {
         use env_vars::vcpkg_rs::{VCPKGRS_DYNAMIC, VCPKG_ROOT};
+        use env_vars::cargo::build_rs::TARGET;
 
         let _g = LOCK.lock();
         clean_env();
         env::set_var(VCPKG_ROOT, vcpkg_test_tree_loc("multiline-description"));
-        env::set_var("TARGET", "i686-pc-windows-msvc");
+        env::set_var(TARGET, "i686-pc-windows-msvc");
         env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir().unwrap();
         env::set_var("OUT_DIR", tmp_dir.path());
@@ -766,11 +772,12 @@ mod tests {
     #[test]
     fn link_libs_required_by_optional_features() {
         use env_vars::vcpkg_rs::{VCPKGRS_DYNAMIC, VCPKG_ROOT};
+        use env_vars::cargo::build_rs::TARGET;
 
         let _g = LOCK.lock();
         clean_env();
         env::set_var(VCPKG_ROOT, vcpkg_test_tree_loc("normalized"));
-        env::set_var("TARGET", "i686-pc-windows-msvc");
+        env::set_var(TARGET, "i686-pc-windows-msvc");
         env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir().unwrap();
         env::set_var("OUT_DIR", tmp_dir.path());
@@ -790,6 +797,7 @@ mod tests {
     #[test]
     fn link_lib_name_is_correct() {
         use env_vars::vcpkg_rs::{VCPKGRS_DYNAMIC, VCPKG_ROOT};
+        use env_vars::cargo::build_rs::TARGET;
 
         let _g = LOCK.lock();
 
@@ -801,7 +809,7 @@ mod tests {
         ] {
             clean_env();
             env::set_var(VCPKG_ROOT, vcpkg_test_tree_loc("normalized"));
-            env::set_var("TARGET", target);
+            env::set_var(TARGET, target);
             env::set_var(VCPKGRS_DYNAMIC, "1");
             let tmp_dir = tempdir().unwrap();
             env::set_var("OUT_DIR", tmp_dir.path());
