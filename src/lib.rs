@@ -128,7 +128,7 @@ pub(crate) use target_triplet::TargetTriplet;
 pub(crate) use vcpkg_target::VcpkgTarget;
 
 use pc_file::{PcFile, PcFiles};
-use env_vars::cargo::build_rs::OUT_DIR;
+use env_vars::cargo::build_rs::{OUT_DIR, CARGO_CFG_TARGET_FEATURE};
 use env_vars::cargo::reads::RUSTFLAGS;
 
 /// Deprecated in favor of the find_package function
@@ -521,7 +521,7 @@ pub(crate) fn msvc_target() -> Result<TargetTriplet, Error> {
 
     let is_definitely_dynamic = env::var(VCPKGRS_DYNAMIC).is_ok();
     let target = env::var(TARGET).unwrap_or(String::new());
-    let is_static = env::var("CARGO_CFG_TARGET_FEATURE")
+    let is_static = env::var(CARGO_CFG_TARGET_FEATURE)
         .unwrap_or(String::new()) // rustc 1.10
         .contains("crt-static");
     if target == "x86_64-apple-darwin" {
@@ -722,7 +722,7 @@ mod tests {
         // CARGO_CFG_TARGET_FEATURE is set in response to
         // RUSTFLAGS=-Ctarget-feature=+crt-static. It would
         //  be nice to test that also.
-        env::set_var("CARGO_CFG_TARGET_FEATURE", "crt-static");
+        env::set_var(CARGO_CFG_TARGET_FEATURE, "crt-static");
         println!("Result is {:?}", ::find_package("libmysql"));
         assert!(match ::find_package("libmysql") {
             Ok(_) => true,
@@ -1150,7 +1150,7 @@ mod tests {
         env::remove_var(VCPKG_ROOT);
         env::remove_var(VCPKGRS_DYNAMIC);
         env::remove_var(RUSTFLAGS);
-        env::remove_var("CARGO_CFG_TARGET_FEATURE");
+        env::remove_var(CARGO_CFG_TARGET_FEATURE);
         env::remove_var(VCPKGRS_DISABLE);
         env::remove_var(format!("{}_LIBMYSQL", VCPKGRS_NO_));
         env::remove_var(VCPKGRS_TRIPLET);
