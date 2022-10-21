@@ -65,7 +65,7 @@ impl Config {
     /// variables and build flags as described in the module docs, and any configuration
     /// set on the builder.
     pub fn find_package(&mut self, port_name: &str) -> Result<Library, Error> {
-        use crate::env_vars::vcpkg_rs::VCPKGRS_DISABLE;
+        use crate::env_vars::vcpkg_rs::{VCPKGRS_DISABLE, VCPKGRS_DYNAMIC};
 
         // determine the target type, bailing out if it is not some
         // kind of msvc
@@ -173,8 +173,8 @@ impl Config {
         // require explicit opt-in before using dynamically linked
         // variants, otherwise cargo install of various things will
         // stop working if Vcpkg is installed.
-        if !vcpkg_target.target_triplet.is_static && !env::var_os("VCPKGRS_DYNAMIC").is_some() {
-            return Err(Error::RequiredEnvMissing("VCPKGRS_DYNAMIC".to_owned()));
+        if !vcpkg_target.target_triplet.is_static && !env::var_os(VCPKGRS_DYNAMIC).is_some() {
+            return Err(Error::RequiredEnvMissing(VCPKGRS_DYNAMIC.to_owned()));
         }
 
         let mut lib = Library::new(
@@ -271,7 +271,7 @@ impl Config {
     /// Deprecated in favor of the find_package function
     #[doc(hidden)]
     pub fn probe(&mut self, port_name: &str) -> Result<Library, Error> {
-        use crate::env_vars::vcpkg_rs::VCPKGRS_DISABLE;
+        use crate::env_vars::vcpkg_rs::{VCPKGRS_DISABLE, VCPKGRS_DYNAMIC};
 
         // determine the target type, bailing out if it is not some
         // kind of msvc
@@ -311,8 +311,8 @@ impl Config {
         // require explicit opt-in before using dynamically linked
         // variants, otherwise cargo install of various things will
         // stop working if Vcpkg is installed.
-        if !vcpkg_target.target_triplet.is_static && !env::var_os("VCPKGRS_DYNAMIC").is_some() {
-            return Err(Error::RequiredEnvMissing("VCPKGRS_DYNAMIC".to_owned()));
+        if !vcpkg_target.target_triplet.is_static && !env::var_os(VCPKGRS_DYNAMIC).is_some() {
+            return Err(Error::RequiredEnvMissing(VCPKGRS_DYNAMIC.to_owned()));
         }
 
         let mut lib = Library::new(
