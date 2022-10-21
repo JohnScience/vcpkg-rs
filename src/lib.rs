@@ -635,6 +635,13 @@ mod tests {
     use std::sync::Mutex;
     use self::tempfile::tempdir;
 
+    use env_vars::cargo::build_rs::TARGET;
+    use env_vars::vcpkg_rs::prefix::VCPKGRS_NO_;
+    use env_vars::vcpkg_rs::{
+        ARBITRARY_VCPKGRS_NO_FOO, NO_VCPKG, VCPKGRS_DISABLE, VCPKGRS_DYNAMIC, VCPKGRS_TRIPLET,
+        VCPKG_ROOT,
+    };
+
     lazy_static! {
         static ref LOCK: Mutex<()> = Mutex::new(());
     }
@@ -664,9 +671,6 @@ mod tests {
 
     #[test]
     fn do_nothing_for_bailout_variables_set() {
-        use env_vars::cargo::build_rs::TARGET;
-        use env_vars::vcpkg_rs::{ARBITRARY_VCPKGRS_NO_FOO, NO_VCPKG, VCPKGRS_DISABLE, VCPKG_ROOT};
-
         let _g = LOCK.lock();
         env::set_var(VCPKG_ROOT, "/");
         env::set_var(TARGET, "x86_64-pc-windows-msvc");
@@ -706,12 +710,9 @@ mod tests {
 
     #[test]
     fn static_build_finds_lib() {
-        use env_vars::cargo::build_rs::TARGET;
-        use env_vars::vcpkg_rs::VCPKG_ROOT;
-
         let _g = LOCK.lock();
         clean_env();
-        env::set_var("VCPKG_ROOT", vcpkg_test_tree_loc("normalized"));
+        env::set_var(VCPKG_ROOT, vcpkg_test_tree_loc("normalized"));
         env::set_var(TARGET, "x86_64-pc-windows-msvc");
         let tmp_dir = tempdir().unwrap();
         env::set_var(VCPKG_ROOT, tmp_dir.path());
@@ -730,9 +731,6 @@ mod tests {
 
     #[test]
     fn dynamic_build_finds_lib() {
-        use env_vars::cargo::build_rs::TARGET;
-        use env_vars::vcpkg_rs::{VCPKGRS_DYNAMIC, VCPKG_ROOT};
-
         let _g = LOCK.lock();
         clean_env();
         env::set_var(VCPKG_ROOT, vcpkg_test_tree_loc("no-status"));
@@ -751,9 +749,6 @@ mod tests {
 
     #[test]
     fn handle_multiline_description() {
-        use env_vars::cargo::build_rs::TARGET;
-        use env_vars::vcpkg_rs::{VCPKGRS_DYNAMIC, VCPKG_ROOT};
-
         let _g = LOCK.lock();
         clean_env();
         env::set_var(VCPKG_ROOT, vcpkg_test_tree_loc("multiline-description"));
@@ -772,9 +767,6 @@ mod tests {
 
     #[test]
     fn link_libs_required_by_optional_features() {
-        use env_vars::cargo::build_rs::TARGET;
-        use env_vars::vcpkg_rs::{VCPKGRS_DYNAMIC, VCPKG_ROOT};
-
         let _g = LOCK.lock();
         clean_env();
         env::set_var(VCPKG_ROOT, vcpkg_test_tree_loc("normalized"));
@@ -797,9 +789,6 @@ mod tests {
 
     #[test]
     fn link_lib_name_is_correct() {
-        use env_vars::cargo::build_rs::TARGET;
-        use env_vars::vcpkg_rs::{VCPKGRS_DYNAMIC, VCPKG_ROOT};
-
         let _g = LOCK.lock();
 
         for target in &[
@@ -830,9 +819,6 @@ mod tests {
 
     #[test]
     fn link_dependencies_after_port() {
-        use env_vars::cargo::build_rs::TARGET;
-        use env_vars::vcpkg_rs::{VCPKGRS_DYNAMIC, VCPKG_ROOT};
-
         let _g = LOCK.lock();
         clean_env();
         env::set_var(VCPKG_ROOT, vcpkg_test_tree_loc("normalized"));
@@ -873,9 +859,6 @@ mod tests {
 
     #[test]
     fn custom_target_triplet_in_config() {
-        use env_vars::cargo::build_rs::TARGET;
-        use env_vars::vcpkg_rs::{VCPKGRS_DYNAMIC, VCPKG_ROOT};
-
         let _g = LOCK.lock();
 
         clean_env();
@@ -899,9 +882,6 @@ mod tests {
 
     #[test]
     fn custom_target_triplet_by_env_no_default() {
-        use env_vars::cargo::build_rs::TARGET;
-        use env_vars::vcpkg_rs::{VCPKGRS_DYNAMIC, VCPKGRS_TRIPLET, VCPKG_ROOT};
-
         let _g = LOCK.lock();
 
         clean_env();
@@ -924,9 +904,6 @@ mod tests {
 
     #[test]
     fn custom_target_triplet_by_env_with_default() {
-        use env_vars::cargo::build_rs::TARGET;
-        use env_vars::vcpkg_rs::{VCPKGRS_DYNAMIC, VCPKGRS_TRIPLET, VCPKG_ROOT};
-
         let _g = LOCK.lock();
 
         clean_env();
@@ -981,9 +958,6 @@ mod tests {
 
     #[test]
     fn pc_files_reordering() {
-        use env_vars::cargo::build_rs::TARGET;
-        use env_vars::vcpkg_rs::VCPKG_ROOT;
-
         let _g = LOCK.lock();
         clean_env();
         env::set_var(VCPKG_ROOT, vcpkg_test_tree_loc("normalized"));
@@ -1170,10 +1144,6 @@ mod tests {
     }
 
     fn clean_env() {
-        use env_vars::cargo::build_rs::TARGET;
-        use env_vars::vcpkg_rs::prefix::VCPKGRS_NO_;
-        use env_vars::vcpkg_rs::{VCPKGRS_DISABLE, VCPKGRS_DYNAMIC, VCPKGRS_TRIPLET, VCPKG_ROOT};
-
         env::remove_var(TARGET);
         env::remove_var(VCPKG_ROOT);
         env::remove_var(VCPKGRS_DYNAMIC);
