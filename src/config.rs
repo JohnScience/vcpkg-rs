@@ -42,8 +42,10 @@ impl Config {
     }
 
     fn get_target_triplet(&mut self) -> Result<TargetTriplet, Error> {
+        use crate::env_vars::vcpkg_rs::VCPKGRS_TRIPLET;
+
         if self.target.is_none() {
-            let target = if let Ok(triplet_str) = env::var("VCPKGRS_TRIPLET") {
+            let target = if let Ok(triplet_str) = env::var(VCPKGRS_TRIPLET) {
                 triplet_str.into()
             } else {
                 try!(msvc_target())
