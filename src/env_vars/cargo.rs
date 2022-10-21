@@ -8,7 +8,7 @@ pub(crate) mod build_rs {
     /// Also, it is the target triple that the crate using `vcpkg-rs` is being compiled for.
     /// Native code should be compiled for this triple. See the [Target Triple] description for more information.
     ///
-    /// [set by Cargo for build script]: https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts
+    /// [set by Cargo for build scripts]: https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts
     /// [`TARGET`]: https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts:~:text=package%20in%20question.-,TARGET,-%E2%80%94%20the%20target%20triple
     pub(crate) const TARGET: &'static str = "TARGET";
 
@@ -17,9 +17,17 @@ pub(crate) mod build_rs {
     /// This folder is inside the build directory for the package being built,
     /// and it is unique for the package in question.
     /// 
-    /// [set by Cargo for build script]: https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts
+    /// [set by Cargo for build scripts]: https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts
     /// [`OUT_DIR`]: https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts:~:text=target%20features%20enabled.-,OUT_DIR,-%E2%80%94%20the%20folder%20in
     pub(crate) const OUT_DIR: &'static str = "OUT_DIR";
+
+    /// The [`CARGO_CFG_TARGET_FEATURE`] environment variable which is [set by Cargo for build scripts].
+    /// Also, the list of CPU [target features] enabled.
+    /// 
+    /// [set by Cargo for build scripts]: https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts
+    /// [`CARGO_CFG_TARGET_FEATURE`]: https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-reads:~:text=CARGO_CFG_TARGET_FEATURE
+    /// [target features]: https://doc.rust-lang.org/reference/conditional-compilation.html#target_feature
+    pub(crate) const CARGO_CFG_TARGET_FEATURE: &'static str = "CARGO_CFG_TARGET_FEATURE";
 }
 
 /// This module contains the environment variables that are used by this crate
