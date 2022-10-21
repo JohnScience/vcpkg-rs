@@ -66,7 +66,7 @@ impl Config {
     /// set on the builder.
     pub fn find_package(&mut self, port_name: &str) -> Result<Library, Error> {
         use crate::env_vars::vcpkg_rs::prefix::VCPKGRS_NO_;
-        use crate::env_vars::vcpkg_rs::{VCPKGRS_DISABLE, VCPKGRS_DYNAMIC};
+        use crate::env_vars::vcpkg_rs::{VCPKGRS_DISABLE, VCPKGRS_DYNAMIC, NO_VCPKG};
 
         // determine the target type, bailing out if it is not some
         // kind of msvc
@@ -78,8 +78,8 @@ impl Config {
         }
 
         // bail out if requested to not try at all (old)
-        if env::var_os("NO_VCPKG").is_some() {
-            return Err(Error::DisabledByEnv("NO_VCPKG".to_owned()));
+        if env::var_os(NO_VCPKG).is_some() {
+            return Err(Error::DisabledByEnv(NO_VCPKG.to_owned()));
         }
 
         // bail out if requested to skip this package
@@ -272,7 +272,7 @@ impl Config {
     /// Deprecated in favor of the find_package function
     #[doc(hidden)]
     pub fn probe(&mut self, port_name: &str) -> Result<Library, Error> {
-        use crate::env_vars::vcpkg_rs::{VCPKGRS_DISABLE, VCPKGRS_DYNAMIC};
+        use crate::env_vars::vcpkg_rs::{VCPKGRS_DISABLE, VCPKGRS_DYNAMIC, NO_VCPKG};
 
         // determine the target type, bailing out if it is not some
         // kind of msvc
@@ -284,8 +284,8 @@ impl Config {
         }
 
         // bail out if requested to not try at all (old)
-        if env::var_os("NO_VCPKG").is_some() {
-            return Err(Error::DisabledByEnv("NO_VCPKG".to_owned()));
+        if env::var_os(NO_VCPKG).is_some() {
+            return Err(Error::DisabledByEnv(NO_VCPKG.to_owned()));
         }
 
         // bail out if requested to skip this package
