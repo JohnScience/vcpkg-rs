@@ -7,5 +7,6 @@ use std::path::{Path, PathBuf};
 mod pc_file;
 mod pc_files;
 
+// https://stackoverflow.com/questions/62099719/rust-the-usage-of-self-when-bringing-paths-into-scope
 pub(crate) use self::pc_file::PcFile;
 pub(crate) use self::pc_files::PcFiles;
