@@ -65,13 +65,15 @@ impl Config {
     /// variables and build flags as described in the module docs, and any configuration
     /// set on the builder.
     pub fn find_package(&mut self, port_name: &str) -> Result<Library, Error> {
+        use crate::env_vars::vcpkg_rs::VCPKGRS_DISABLE;
+
         // determine the target type, bailing out if it is not some
         // kind of msvc
         let msvc_target = try!(self.get_target_triplet());
 
         // bail out if requested to not try at all
-        if env::var_os("VCPKGRS_DISABLE").is_some() {
-            return Err(Error::DisabledByEnv("VCPKGRS_DISABLE".to_owned()));
+        if env::var_os(VCPKGRS_DISABLE).is_some() {
+            return Err(Error::DisabledByEnv(VCPKGRS_DISABLE.to_owned()));
         }
 
         // bail out if requested to not try at all (old)
@@ -269,13 +271,15 @@ impl Config {
     /// Deprecated in favor of the find_package function
     #[doc(hidden)]
     pub fn probe(&mut self, port_name: &str) -> Result<Library, Error> {
+        use crate::env_vars::vcpkg_rs::VCPKGRS_DISABLE;
+
         // determine the target type, bailing out if it is not some
         // kind of msvc
         let msvc_target = try!(self.get_target_triplet());
 
         // bail out if requested to not try at all
-        if env::var_os("VCPKGRS_DISABLE").is_some() {
-            return Err(Error::DisabledByEnv("VCPKGRS_DISABLE".to_owned()));
+        if env::var_os(VCPKGRS_DISABLE).is_some() {
+            return Err(Error::DisabledByEnv(VCPKGRS_DISABLE.to_owned()));
         }
 
         // bail out if requested to not try at all (old)
