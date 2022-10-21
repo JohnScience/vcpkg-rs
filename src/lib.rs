@@ -128,6 +128,7 @@ pub(crate) use target_triplet::TargetTriplet;
 pub(crate) use vcpkg_target::VcpkgTarget;
 
 use pc_file::{PcFile, PcFiles};
+use env_vars::cargo::build_rs::OUT_DIR;
 
 /// Deprecated in favor of the find_package function
 #[doc(hidden)]
@@ -205,7 +206,7 @@ pub fn find_vcpkg_root(cfg: &Config) -> Result<PathBuf, Error> {
     }
 
     // walk up the directory structure and see if it is there
-    if let Some(path) = env::var_os("OUT_DIR") {
+    if let Some(path) = env::var_os(OUT_DIR) {
         // path.ancestors() is supported from Rust 1.28
         let mut path = PathBuf::from(path);
         while path.pop() {
@@ -736,7 +737,7 @@ mod tests {
         env::set_var(TARGET, "x86_64-pc-windows-msvc");
         env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir::TempDir::new("vcpkg_tests").unwrap();
-        env::set_var("OUT_DIR", tmp_dir.path());
+        env::set_var(OUT_DIR, tmp_dir.path());
 
         println!("Result is {:?}", ::find_package("libmysql"));
         assert!(match ::find_package("libmysql") {
@@ -754,7 +755,7 @@ mod tests {
         env::set_var(TARGET, "i686-pc-windows-msvc");
         env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir::TempDir::new("vcpkg_tests").unwrap();
-        env::set_var("OUT_DIR", tmp_dir.path());
+        env::set_var(OUT_DIR, tmp_dir.path());
 
         println!("Result is {:?}", ::find_package("graphite2"));
         assert!(match ::find_package("graphite2") {
@@ -772,7 +773,7 @@ mod tests {
         env::set_var(TARGET, "i686-pc-windows-msvc");
         env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir::TempDir::new("vcpkg_tests").unwrap();
-        env::set_var("OUT_DIR", tmp_dir.path());
+        env::set_var(OUT_DIR, tmp_dir.path());
 
         println!("Result is {:?}", ::find_package("harfbuzz"));
         assert!(match ::find_package("harfbuzz") {
@@ -801,7 +802,7 @@ mod tests {
             env::set_var(TARGET, target);
             env::set_var(VCPKGRS_DYNAMIC, "1");
             let tmp_dir = tempdir::TempDir::new("vcpkg_tests").unwrap();
-            env::set_var("OUT_DIR", tmp_dir.path());
+            env::set_var(OUT_DIR, tmp_dir.path());
 
             println!("Result is {:?}", ::find_package("harfbuzz"));
             assert!(match ::find_package("harfbuzz") {
@@ -824,7 +825,7 @@ mod tests {
         env::set_var(TARGET, "i686-pc-windows-msvc");
         env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir::TempDir::new("vcpkg_tests").unwrap();
-        env::set_var("OUT_DIR", tmp_dir.path());
+        env::set_var(OUT_DIR, tmp_dir.path());
 
         let lib = ::find_package("harfbuzz").unwrap();
 
@@ -865,7 +866,7 @@ mod tests {
         env::set_var(TARGET, "aarch64-apple-ios");
         env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir::TempDir::new("vcpkg_tests").unwrap();
-        env::set_var("OUT_DIR", tmp_dir.path());
+        env::set_var(OUT_DIR, tmp_dir.path());
 
         let harfbuzz = ::Config::new()
             // For the sake of testing, force this build to try to
@@ -888,7 +889,7 @@ mod tests {
         env::set_var(TARGET, "aarch64-apple-doesnotexist");
         env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir::TempDir::new("vcpkg_tests").unwrap();
-        env::set_var("OUT_DIR", tmp_dir.path());
+        env::set_var(OUT_DIR, tmp_dir.path());
 
         let harfbuzz = ::find_package("harfbuzz");
         println!("Result with inference is {:?}", &harfbuzz);
@@ -910,7 +911,7 @@ mod tests {
         env::set_var(TARGET, "aarch64-apple-ios");
         env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir::TempDir::new("vcpkg_tests").unwrap();
-        env::set_var("OUT_DIR", tmp_dir.path());
+        env::set_var(OUT_DIR, tmp_dir.path());
 
         let harfbuzz = ::find_package("harfbuzz").unwrap();
         println!("Result with inference is {:?}", &harfbuzz);
@@ -963,7 +964,7 @@ mod tests {
         env::set_var(TARGET, "x86_64-unknown-linux-gnu");
         // env::set_var("VCPKGRS_DYNAMIC", "1");
         let tmp_dir = tempdir::TempDir::new("vcpkg_tests").unwrap();
-        env::set_var("OUT_DIR", tmp_dir.path());
+        env::set_var(OUT_DIR, tmp_dir.path());
 
         let target_triplet = msvc_target().unwrap();
 

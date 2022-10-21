@@ -7,6 +7,7 @@ use crate::{
     envify, find_vcpkg_target, load_ports, msvc_target, remove_item, Error, Library, Port,
     TargetTriplet, VcpkgTarget,
 };
+use crate::env_vars::cargo::build_rs::OUT_DIR;
 
 /// Configuration options for finding packages, setting up the tree and emitting metadata to cargo
 #[derive(Default)]
@@ -405,7 +406,7 @@ impl Config {
     }
 
     fn do_dll_copy(&mut self, lib: &mut Library) -> Result<(), Error> {
-        if let Some(target_dir) = env::var_os("OUT_DIR") {
+        if let Some(target_dir) = env::var_os(OUT_DIR) {
             if !lib.found_dlls.is_empty() {
                 for file in &lib.found_dlls {
                     let mut dest_path = Path::new(target_dir.as_os_str()).to_path_buf();
@@ -425,16 +426,16 @@ impl Config {
                 }
                 lib.cargo_metadata.push(format!(
                     "cargo:rustc-link-search=native={}",
-                    env::var("OUT_DIR").unwrap()
+                    env::var(OUT_DIR).unwrap()
                 ));
                 // work around https://github.com/rust-lang/cargo/issues/3957
                 lib.cargo_metadata.push(format!(
                     "cargo:rustc-link-search={}",
-                    env::var("OUT_DIR").unwrap()
+                    env::var(OUT_DIR).unwrap()
                 ));
             }
         } else {
-            return Err(Error::LibNotFound("Unable to get OUT_DIR".to_owned()));
+            return Err(Error::LibNotFound(format!("Unable to get {}", OUT_DIR)));
         }
         Ok(())
     }
