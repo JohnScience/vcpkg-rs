@@ -113,11 +113,13 @@ use std::path::{Path, PathBuf};
 mod error;
 mod vcpkg_target;
 mod target_triplet;
+mod port;
 
 pub use crate::error::Error;
 
 pub(crate) use vcpkg_target::VcpkgTarget;
 pub(crate) use target_triplet::TargetTriplet;
+pub(crate) use port::Port;
 
 /// Configuration options for finding packages, setting up the tree and emitting metadata to cargo
 #[derive(Default)]
@@ -492,18 +494,6 @@ impl PcFiles {
         }
         None
     }
-}
-
-#[derive(Clone, Debug)]
-struct Port {
-    // dlls if any
-    dlls: Vec<String>,
-
-    // libs (static or import)
-    libs: Vec<String>,
-
-    // ports that this port depends on
-    deps: Vec<String>,
 }
 
 fn load_port_manifest(
