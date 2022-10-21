@@ -655,7 +655,7 @@ mod tests {
 
     #[test]
     fn do_nothing_for_bailout_variables_set() {
-        use env_vars::vcpkg_rs::{VCPKGRS_NO_FOO, VCPKGRS_DISABLE};
+        use env_vars::vcpkg_rs::{ARBITRARY_VCPKGRS_NO_FOO, VCPKGRS_DISABLE};
 
         let _g = LOCK.lock();
         env::set_var("VCPKG_ROOT", "/");
@@ -663,7 +663,7 @@ mod tests {
 
         for &var in &[
             VCPKGRS_DISABLE,
-            VCPKGRS_NO_FOO,
+            ARBITRARY_VCPKGRS_NO_FOO,
             "FOO_NO_VCPKG",
             "NO_VCPKG",
         ] {
