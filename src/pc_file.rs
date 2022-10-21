@@ -1,10 +1,10 @@
-use std::path::{Path, PathBuf};
-use std::fs::File;
-use std::io::Read;
 use std::collections::HashMap;
 use std::ffi::OsStr;
+use std::fs::File;
+use std::io::Read;
+use std::path::{Path, PathBuf};
 
-use crate::{VcpkgTarget, TargetTriplet, Error, remove_item};
+use crate::{remove_item, Error, TargetTriplet, VcpkgTarget};
 
 /// Parsed knowledge from a .pc file.
 #[derive(Debug)]
@@ -38,7 +38,11 @@ impl PcFile {
         PcFile::from_str(&id, &pc_file_contents, &vcpkg_target.target_triplet)
     }
 
-    pub(crate) fn from_str(id: &str, s: &str, target_triplet: &TargetTriplet) -> Result<Self, Error> {
+    pub(crate) fn from_str(
+        id: &str,
+        s: &str,
+        target_triplet: &TargetTriplet,
+    ) -> Result<Self, Error> {
         let mut libs = Vec::new();
         let mut deps = Vec::new();
 
@@ -103,7 +107,10 @@ pub(crate) struct PcFiles {
 }
 
 impl PcFiles {
-    pub(crate) fn load_pkgconfig_dir(vcpkg_target: &VcpkgTarget, path: &PathBuf) -> Result<Self, Error> {
+    pub(crate) fn load_pkgconfig_dir(
+        vcpkg_target: &VcpkgTarget,
+        path: &PathBuf,
+    ) -> Result<Self, Error> {
         let mut files = HashMap::new();
         for dir_entry in try!(path.read_dir().map_err(|e| {
             Error::VcpkgInstallation(format!(

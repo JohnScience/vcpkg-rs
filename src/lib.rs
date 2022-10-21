@@ -110,21 +110,21 @@ use std::fs::{self, File};
 use std::io::{BufRead, BufReader, Read};
 use std::path::{Path, PathBuf};
 
-mod library;
-mod error;
-mod vcpkg_target;
-mod target_triplet;
-mod port;
-mod pc_file;
 mod config;
+mod error;
+mod library;
+mod pc_file;
+mod port;
+mod target_triplet;
+mod vcpkg_target;
 
 pub use crate::error::Error;
-pub use library::Library;
 pub use config::Config;
+pub use library::Library;
 
-pub(crate) use vcpkg_target::VcpkgTarget;
-pub(crate) use target_triplet::TargetTriplet;
 pub(crate) use port::Port;
+pub(crate) use target_triplet::TargetTriplet;
+pub(crate) use vcpkg_target::VcpkgTarget;
 
 use pc_file::{PcFile, PcFiles};
 
@@ -247,7 +247,10 @@ fn validate_vcpkg_root(path: &PathBuf) -> Result<(), Error> {
 }
 
 // Should it be an associated function of Config?
-pub(crate) fn find_vcpkg_target(cfg: &Config, target_triplet: &TargetTriplet) -> Result<VcpkgTarget, Error> {
+pub(crate) fn find_vcpkg_target(
+    cfg: &Config,
+    target_triplet: &TargetTriplet,
+) -> Result<VcpkgTarget, Error> {
     let vcpkg_root = try!(find_vcpkg_root(&cfg));
     try!(validate_vcpkg_root(&vcpkg_root));
 
