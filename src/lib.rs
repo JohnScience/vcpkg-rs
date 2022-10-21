@@ -285,11 +285,11 @@ fn find_vcpkg_target(cfg: &Config, target_triplet: &TargetTriplet) -> Result<Vcp
     let packages_path = vcpkg_root.join("packages");
 
     Ok(VcpkgTarget {
-        lib_path: lib_path,
-        bin_path: bin_path,
-        include_path: include_path,
-        status_path: status_path,
-        packages_path: packages_path,
+        lib_path,
+        bin_path,
+        include_path,
+        status_path,
+        packages_path,
         target_triplet: target_triplet.clone(),
     })
 }
