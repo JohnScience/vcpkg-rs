@@ -501,8 +501,7 @@ pub(crate) fn remove_item(cont: &mut Vec<String>, item: &String) -> Option<Strin
 
 pub(crate) fn envify(name: &str) -> String {
     name.chars()
-        .map(|c| c.to_ascii_uppercase())
-        .map(|c| if c == '-' { '_' } else { c })
+        .map(|c| if c == '-' { '_' } else { c.to_ascii_uppercase() })
         .collect()
 }
 
