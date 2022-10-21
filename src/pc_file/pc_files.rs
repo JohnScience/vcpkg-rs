@@ -17,25 +17,25 @@ impl PcFiles {
         path: &PathBuf,
     ) -> Result<Self, Error> {
         let mut files = HashMap::new();
-        for dir_entry in try!(path.read_dir().map_err(|e| {
+        for dir_entry in path.read_dir().map_err(|e| {
             Error::VcpkgInstallation(format!(
                 "Missing pkgconfig directory {}: {}",
                 path.to_string_lossy(),
                 e
             ))
-        })) {
-            let dir_entry = try!(dir_entry.map_err(|e| {
+        })? {
+            let dir_entry = dir_entry.map_err(|e| {
                 Error::VcpkgInstallation(format!(
                     "Troubling reading pkgconfig dir {}: {}",
                     path.to_string_lossy(),
                     e
                 ))
-            }));
+            })?;
             // Only look at .pc files.
             if dir_entry.path().extension() != Some(OsStr::new("pc")) {
                 continue;
             }
-            let pc_file = try!(PcFile::parse_pc_file(vcpkg_target, &dir_entry.path()));
+            let pc_file = PcFile::parse_pc_file(vcpkg_target, &dir_entry.path())?;
             files.insert(pc_file.id.to_owned(), pc_file);
         }
         Ok(PcFiles { files })

@@ -49,7 +49,7 @@ impl Config {
             let target = if let Ok(triplet_str) = env::var(VCPKGRS_TRIPLET) {
                 triplet_str.into()
             } else {
-                try!(msvc_target())
+                msvc_target()?
             };
             self.target = Some(target);
         }
@@ -70,7 +70,7 @@ impl Config {
 
         // determine the target type, bailing out if it is not some
         // kind of msvc
-        let msvc_target = try!(self.get_target_triplet());
+        let msvc_target = self.get_target_triplet()?;
 
         // bail out if requested to not try at all
         if env::var_os(VCPKGRS_DISABLE).is_some() {
@@ -94,13 +94,13 @@ impl Config {
             return Err(Error::DisabledByEnv(abort_var_name));
         }
 
-        let vcpkg_target = try!(find_vcpkg_target(&self, &msvc_target));
+        let vcpkg_target = find_vcpkg_target(&self, &msvc_target)?;
         let mut required_port_order = Vec::new();
 
         // if no overrides have been selected, then the Vcpkg port name
         // is the the .lib name and the .dll name
         if self.required_libs.is_empty() {
-            let ports = try!(load_ports(&vcpkg_target));
+            let ports = load_ports(&vcpkg_target)?;
 
             if ports.get(&port_name.to_owned()).is_none() {
                 return Err(Error::LibNotFound(format!(
@@ -213,10 +213,10 @@ impl Config {
 
         lib.ports = required_port_order;
 
-        try!(self.emit_libs(&mut lib, &vcpkg_target));
+        self.emit_libs(&mut lib, &vcpkg_target)?;
 
         if self.copy_dlls {
-            try!(self.do_dll_copy(&mut lib));
+            self.do_dll_copy(&mut lib)?;
         }
 
         if self.cargo_metadata {
@@ -276,7 +276,7 @@ impl Config {
 
         // determine the target type, bailing out if it is not some
         // kind of msvc
-        let msvc_target = try!(self.get_target_triplet());
+        let msvc_target = self.get_target_triplet()?;
 
         // bail out if requested to not try at all
         if env::var_os(VCPKGRS_DISABLE).is_some() {
@@ -307,7 +307,7 @@ impl Config {
             self.required_dlls.push(port_name.to_owned());
         }
 
-        let vcpkg_target = try!(find_vcpkg_target(&self, &msvc_target));
+        let vcpkg_target = find_vcpkg_target(&self, &msvc_target)?;
 
         // require explicit opt-in before using dynamically linked
         // variants, otherwise cargo install of various things will
@@ -349,10 +349,10 @@ impl Config {
             lib.dll_paths.push(vcpkg_target.bin_path.clone());
         }
 
-        try!(self.emit_libs(&mut lib, &vcpkg_target));
+        self.emit_libs(&mut lib, &vcpkg_target)?;
 
         if self.copy_dlls {
-            try!(self.do_dll_copy(&mut lib));
+            self.do_dll_copy(&mut lib)?;
         }
 
         if self.cargo_metadata {
@@ -410,13 +410,12 @@ impl Config {
                 for file in &lib.found_dlls {
                     let mut dest_path = Path::new(target_dir.as_os_str()).to_path_buf();
                     dest_path.push(Path::new(file.file_name().unwrap()));
-                    try!(
-                        fs::copy(file, &dest_path).map_err(|_| Error::LibNotFound(format!(
-                            "Can't copy file {} to {}",
-                            file.to_string_lossy(),
-                            dest_path.to_string_lossy()
-                        )))
-                    );
+                    
+                    fs::copy(file, &dest_path).map_err(|_| Error::LibNotFound(format!(
+                        "Can't copy file {} to {}",
+                        file.to_string_lossy(),
+                        dest_path.to_string_lossy()
+                    )))?;
                     println!(
                         "vcpkg build helper copied {} to {}",
                         file.to_string_lossy(),
