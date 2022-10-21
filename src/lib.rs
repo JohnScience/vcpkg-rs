@@ -98,9 +98,6 @@
 #[macro_use]
 extern crate lazy_static;
 
-mod error;
-mod vcpkg_target;
-
 #[allow(unused_imports)]
 use std::ascii::AsciiExt;
 
@@ -113,8 +110,14 @@ use std::fs::{self, File};
 use std::io::{BufRead, BufReader, Read};
 use std::path::{Path, PathBuf};
 
+mod error;
+mod vcpkg_target;
+mod target_triplet;
+
 pub use crate::error::Error;
+
 pub(crate) use vcpkg_target::VcpkgTarget;
+pub(crate) use target_triplet::TargetTriplet;
 
 /// Configuration options for finding packages, setting up the tree and emitting metadata to cargo
 #[derive(Default)]
@@ -172,35 +175,6 @@ pub struct Library {
 
     /// the vcpkg triplet that has been selected
     pub vcpkg_triplet: String,
-}
-
-#[derive(Clone)]
-struct TargetTriplet {
-    triplet: String,
-    is_static: bool,
-    lib_suffix: String,
-    strip_lib_prefix: bool,
-}
-
-impl<S: AsRef<str>> From<S> for TargetTriplet {
-    fn from(triplet: S) -> TargetTriplet {
-        let triplet = triplet.as_ref();
-        if triplet.contains("windows") {
-            TargetTriplet {
-                triplet: triplet.into(),
-                is_static: triplet.contains("-static"),
-                lib_suffix: "lib".into(),
-                strip_lib_prefix: false,
-            }
-        } else {
-            TargetTriplet {
-                triplet: triplet.into(),
-                is_static: true,
-                lib_suffix: "a".into(),
-                strip_lib_prefix: true,
-            }
-        }
-    }
 }
 
 /// Deprecated in favor of the find_package function
