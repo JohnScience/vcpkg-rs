@@ -1145,6 +1145,7 @@ mod tests {
         env::remove_var("VCPKGRS_DISABLE");
         env::remove_var("VCPKGRS_NO_LIBMYSQL");
         env::remove_var(VCPKGRS_TRIPLET);
+        // should this function clean VCPKGRS_NO_FOO?
     }
 
     // path to a to vcpkg installation to test against
