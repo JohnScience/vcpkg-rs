@@ -171,10 +171,10 @@ pub fn find_vcpkg_root(cfg: &Config) -> Result<PathBuf, Error> {
             let file = BufReader::new(&file);
 
             for line in file.lines() {
-                let line = try!(line.map_err(|_| Error::VcpkgNotFound(format!(
+                let line = line.map_err(|_| Error::VcpkgNotFound(format!(
                     "Parsing of {} failed.",
                     vcpkg_user_targets_path.to_string_lossy().to_owned()
-                ))));
+                )))?;
                 let mut split = line.split("Project=\"");
                 split.next(); // eat anything before Project="
                 if let Some(found) = split.next() {
@@ -253,8 +253,8 @@ pub(crate) fn find_vcpkg_target(
     cfg: &Config,
     target_triplet: &TargetTriplet,
 ) -> Result<VcpkgTarget, Error> {
-    let vcpkg_root = try!(find_vcpkg_root(&cfg));
-    try!(validate_vcpkg_root(&vcpkg_root));
+    let vcpkg_root = find_vcpkg_root(&cfg)?;
+    validate_vcpkg_root(&vcpkg_root)?;
 
     let mut base = vcpkg_root.clone();
     base.push("installed");
@@ -291,12 +291,10 @@ fn load_port_manifest(
     let mut dlls = Vec::new();
     let mut libs = Vec::new();
 
-    let f = try!(
-        File::open(&manifest_file).map_err(|_| Error::VcpkgInstallation(format!(
-            "Could not open port manifest file {}",
-            manifest_file.display()
-        )))
-    );
+    let f = File::open(&manifest_file).map_err(|_| Error::VcpkgInstallation(format!(
+        "Could not open port manifest file {}",
+        manifest_file.display()
+    )))?;
 
     let file = BufReader::new(&f);
 
@@ -347,13 +345,11 @@ fn load_port_file(
     filename: &PathBuf,
     port_info: &mut Vec<BTreeMap<String, String>>,
 ) -> Result<(), Error> {
-    let f = try!(
-        File::open(&filename).map_err(|e| Error::VcpkgInstallation(format!(
-            "Could not open status file at {}: {}",
-            filename.display(),
-            e
-        )))
-    );
+    let f = File::open(&filename).map_err(|e| Error::VcpkgInstallation(format!(
+        "Could not open status file at {}: {}",
+        filename.display(),
+        e
+    )))?;
     let file = BufReader::new(&f);
     let mut current: BTreeMap<String, String> = BTreeMap::new();
     for line in file.lines() {
@@ -401,15 +397,13 @@ pub(crate) fn load_ports(target: &VcpkgTarget) -> Result<BTreeMap<String, Port>,
     // load updates to the status file that have yet to be normalized
     let status_update_dir = target.status_path.join("updates");
 
-    let paths = try!(
-        fs::read_dir(status_update_dir).map_err(|e| Error::VcpkgInstallation(format!(
-            "could not read status file updates dir: {}",
-            e
-        )))
-    );
+    let paths = fs::read_dir(status_update_dir).map_err(|e| Error::VcpkgInstallation(format!(
+        "could not read status file updates dir: {}",
+        e
+    )))?;
 
     // get all of the paths of the update files into a Vec<PathBuf>
-    let mut paths = try!(paths
+    let mut paths = paths
         .map(|rde| rde.map(|de| de.path())) // Result<DirEntry, io::Error> -> Result<PathBuf, io::Error>
         .collect::<Result<Vec<_>, _>>() // collect into Result<Vec<PathBuf>, io::Error>
         .map_err(|e| {
@@ -417,7 +411,7 @@ pub(crate) fn load_ports(target: &VcpkgTarget) -> Result<BTreeMap<String, Port>,
                 "could not read status file update filenames: {}",
                 e
             ))
-        }));
+        })?;
 
     // Sort the paths and read them. This could be done directly from the iterator if
     // read_dir() guarantees that the files will be read in alpha order but that appears
@@ -426,7 +420,7 @@ pub(crate) fn load_ports(target: &VcpkgTarget) -> Result<BTreeMap<String, Port>,
     paths.sort();
     for path in paths {
         //       println!("Name: {}", path.display());
-        try!(load_port_file(&path, &mut port_info));
+        load_port_file(&path, &mut port_info)?;
     }
     //println!("{:#?}", port_info);
 
@@ -461,12 +455,12 @@ pub(crate) fn load_ports(target: &VcpkgTarget) -> Result<BTreeMap<String, Port>,
                 match (current.get("Version"), feature) {
                     (Some(version), _) => {
                         // this failing here and bailing out causes everything to fail
-                        let lib_info = try!(load_port_manifest(
+                        let lib_info = load_port_manifest(
                             &target.status_path,
                             &name,
                             version,
                             &target
-                        ));
+                        )?;
                         let port = Port {
                             dlls: lib_info.0,
                             libs: lib_info.1,

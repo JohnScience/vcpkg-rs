@@ -18,21 +18,21 @@ pub(crate) struct PcFile {
 impl PcFile {
     pub(crate) fn parse_pc_file(vcpkg_target: &VcpkgTarget, path: &Path) -> Result<Self, Error> {
         // Extract the pkg-config name.
-        let id = try!(path
+        let id = path
             .file_stem()
             .ok_or_else(|| Error::VcpkgInstallation(format!(
                 "pkg-config file {} has bogus name",
                 path.to_string_lossy()
-            ))))
+            )))?
         .to_string_lossy();
         // Read through the file and gather what we want.
-        let mut file = try!(File::open(path)
-            .map_err(|_| Error::VcpkgInstallation(format!("Couldn't open {}", path.display()))));
+        let mut file = File::open(path)
+            .map_err(|_| Error::VcpkgInstallation(format!("Couldn't open {}", path.display())))?;
         let mut pc_file_contents = String::new();
 
-        try!(file
+        file
             .read_to_string(&mut pc_file_contents)
-            .map_err(|_| Error::VcpkgInstallation(format!("Couldn't read {}", path.display()))));
+            .map_err(|_| Error::VcpkgInstallation(format!("Couldn't read {}", path.display())))?;
         PcFile::from_str(&id, &pc_file_contents, &vcpkg_target.target_triplet)
     }
 
