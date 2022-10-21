@@ -99,6 +99,7 @@
 extern crate lazy_static;
 
 mod error;
+mod vcpkg_target;
 
 #[allow(unused_imports)]
 use std::ascii::AsciiExt;
@@ -113,6 +114,7 @@ use std::io::{BufRead, BufReader, Read};
 use std::path::{Path, PathBuf};
 
 pub use crate::error::Error;
+pub(crate) use vcpkg_target::VcpkgTarget;
 
 /// Configuration options for finding packages, setting up the tree and emitting metadata to cargo
 #[derive(Default)]
@@ -749,34 +751,6 @@ fn load_ports(target: &VcpkgTarget) -> Result<BTreeMap<String, Port>, Error> {
     }
 
     Ok(ports)
-}
-
-/// paths and triple for the chosen target
-struct VcpkgTarget {
-    lib_path: PathBuf,
-    bin_path: PathBuf,
-    include_path: PathBuf,
-
-    // directory containing the status file
-    status_path: PathBuf,
-    // directory containing the install files per port.
-    packages_path: PathBuf,
-
-    // target-specific settings.
-    target_triplet: TargetTriplet,
-}
-
-impl VcpkgTarget {
-    fn link_name_for_lib(&self, filename: &std::path::Path) -> Option<String> {
-        if self.target_triplet.strip_lib_prefix {
-            filename.to_str().map(|s| s.to_owned())
-        // filename
-        //     .to_str()
-        //     .map(|s| s.trim_left_matches("lib").to_owned())
-        } else {
-            filename.to_str().map(|s| s.to_owned())
-        }
-    }
 }
 
 impl Config {
