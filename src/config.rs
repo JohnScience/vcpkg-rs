@@ -65,8 +65,8 @@ impl Config {
     /// variables and build flags as described in the module docs, and any configuration
     /// set on the builder.
     pub fn find_package(&mut self, port_name: &str) -> Result<Library, Error> {
-        use crate::env_vars::vcpkg_rs::{VCPKGRS_DISABLE, VCPKGRS_DYNAMIC};
         use crate::env_vars::vcpkg_rs::prefix::VCPKGRS_NO_;
+        use crate::env_vars::vcpkg_rs::{VCPKGRS_DISABLE, VCPKGRS_DYNAMIC};
 
         // determine the target type, bailing out if it is not some
         // kind of msvc
