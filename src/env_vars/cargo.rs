@@ -1,6 +1,6 @@
 /// This module contains the environment variables that are being used by
 /// this crate and are [set by Cargo for build scripts].
-/// 
+///
 /// [variables that Cargo sets for build scripts]: https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts
 pub(crate) mod build_rs {
 
