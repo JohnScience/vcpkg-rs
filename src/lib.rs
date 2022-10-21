@@ -149,13 +149,15 @@ pub fn find_package(package: &str) -> Result<Library, Error> {
 /// Find the vcpkg root
 #[doc(hidden)]
 pub fn find_vcpkg_root(cfg: &Config) -> Result<PathBuf, Error> {
+    use crate::env_vars::vcpkg_rs::VCPKG_ROOT;
+
     // prefer the setting from the use if there is one
     if let &Some(ref path) = &cfg.vcpkg_root {
         return Ok(path.clone());
     }
 
     // otherwise, use the setting from the environment
-    if let Some(path) = env::var_os("VCPKG_ROOT") {
+    if let Some(path) = env::var_os(VCPKG_ROOT) {
         return Ok(PathBuf::from(path));
     }
 
@@ -227,9 +229,8 @@ pub fn find_vcpkg_root(cfg: &Config) -> Result<PathBuf, Error> {
     }
 
     Err(Error::VcpkgNotFound(
-        "No vcpkg installation found. Set the VCPKG_ROOT environment \
-             variable or run 'vcpkg integrate install'"
-            .to_string(),
+        format!("No vcpkg installation found. Set the {} environment \
+             variable or run 'vcpkg integrate install'", VCPKG_ROOT),
     ))
 }
 
@@ -637,8 +638,10 @@ mod tests {
 
     #[test]
     fn do_nothing_for_unsupported_target() {
+        use env_vars::vcpkg_rs::VCPKG_ROOT;
+
         let _g = LOCK.lock();
-        env::set_var("VCPKG_ROOT", "/");
+        env::set_var(VCPKG_ROOT, "/");
         env::set_var("TARGET", "x86_64-pc-windows-gnu");
         assert!(match ::probe_package("foo") {
             Err(Error::NotMSVC) => true,
@@ -652,15 +655,15 @@ mod tests {
             _ => false,
         });
         env::remove_var("TARGET");
-        env::remove_var("VCPKG_ROOT");
+        env::remove_var(VCPKG_ROOT);
     }
 
     #[test]
     fn do_nothing_for_bailout_variables_set() {
-        use env_vars::vcpkg_rs::{ARBITRARY_VCPKGRS_NO_FOO, VCPKGRS_DISABLE, NO_VCPKG};
+        use env_vars::vcpkg_rs::{ARBITRARY_VCPKGRS_NO_FOO, VCPKGRS_DISABLE, NO_VCPKG, VCPKG_ROOT};
 
         let _g = LOCK.lock();
-        env::set_var("VCPKG_ROOT", "/");
+        env::set_var(VCPKG_ROOT, "/");
         env::set_var("TARGET", "x86_64-pc-windows-msvc");
 
         for &var in &[
@@ -677,7 +680,7 @@ mod tests {
             env::remove_var(var);
         }
         env::remove_var("TARGET");
-        env::remove_var("VCPKG_ROOT");
+        env::remove_var(VCPKG_ROOT);
     }
 
     // these tests are good but are leaning on a real vcpkg installation
@@ -698,12 +701,14 @@ mod tests {
 
     #[test]
     fn static_build_finds_lib() {
+        use env_vars::vcpkg_rs::VCPKG_ROOT;
+
         let _g = LOCK.lock();
         clean_env();
         env::set_var("VCPKG_ROOT", vcpkg_test_tree_loc("normalized"));
         env::set_var("TARGET", "x86_64-pc-windows-msvc");
         let tmp_dir = tempdir::TempDir::new("vcpkg_tests").unwrap();
-        env::set_var("OUT_DIR", tmp_dir.path());
+        env::set_var(VCPKG_ROOT, tmp_dir.path());
 
         // CARGO_CFG_TARGET_FEATURE is set in response to
         // RUSTFLAGS=-Ctarget-feature=+crt-static. It would
@@ -719,11 +724,11 @@ mod tests {
 
     #[test]
     fn dynamic_build_finds_lib() {
-        use env_vars::vcpkg_rs::VCPKGRS_DYNAMIC;
+        use env_vars::vcpkg_rs::{VCPKGRS_DYNAMIC, VCPKG_ROOT};
 
         let _g = LOCK.lock();
         clean_env();
-        env::set_var("VCPKG_ROOT", vcpkg_test_tree_loc("no-status"));
+        env::set_var(VCPKG_ROOT, vcpkg_test_tree_loc("no-status"));
         env::set_var("TARGET", "x86_64-pc-windows-msvc");
         env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir::TempDir::new("vcpkg_tests").unwrap();
@@ -739,11 +744,11 @@ mod tests {
 
     #[test]
     fn handle_multiline_description() {
-        use env_vars::vcpkg_rs::VCPKGRS_DYNAMIC;
+        use env_vars::vcpkg_rs::{VCPKGRS_DYNAMIC, VCPKG_ROOT};
 
         let _g = LOCK.lock();
         clean_env();
-        env::set_var("VCPKG_ROOT", vcpkg_test_tree_loc("multiline-description"));
+        env::set_var(VCPKG_ROOT, vcpkg_test_tree_loc("multiline-description"));
         env::set_var("TARGET", "i686-pc-windows-msvc");
         env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir::TempDir::new("vcpkg_tests").unwrap();
@@ -759,11 +764,11 @@ mod tests {
 
     #[test]
     fn link_libs_required_by_optional_features() {
-        use env_vars::vcpkg_rs::VCPKGRS_DYNAMIC;
+        use env_vars::vcpkg_rs::{VCPKGRS_DYNAMIC, VCPKG_ROOT};
 
         let _g = LOCK.lock();
         clean_env();
-        env::set_var("VCPKG_ROOT", vcpkg_test_tree_loc("normalized"));
+        env::set_var(VCPKG_ROOT, vcpkg_test_tree_loc("normalized"));
         env::set_var("TARGET", "i686-pc-windows-msvc");
         env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir::TempDir::new("vcpkg_tests").unwrap();
@@ -783,7 +788,7 @@ mod tests {
 
     #[test]
     fn link_lib_name_is_correct() {
-        use env_vars::vcpkg_rs::VCPKGRS_DYNAMIC;
+        use env_vars::vcpkg_rs::{VCPKGRS_DYNAMIC, VCPKG_ROOT};
 
         let _g = LOCK.lock();
 
@@ -794,7 +799,7 @@ mod tests {
             //    "x86_64-unknown-linux-gnu",
         ] {
             clean_env();
-            env::set_var("VCPKG_ROOT", vcpkg_test_tree_loc("normalized"));
+            env::set_var(VCPKG_ROOT, vcpkg_test_tree_loc("normalized"));
             env::set_var("TARGET", target);
             env::set_var(VCPKGRS_DYNAMIC, "1");
             let tmp_dir = tempdir::TempDir::new("vcpkg_tests").unwrap();
@@ -815,11 +820,11 @@ mod tests {
 
     #[test]
     fn link_dependencies_after_port() {
-        use env_vars::vcpkg_rs::VCPKGRS_DYNAMIC;
+        use env_vars::vcpkg_rs::{VCPKGRS_DYNAMIC, VCPKG_ROOT};
 
         let _g = LOCK.lock();
         clean_env();
-        env::set_var("VCPKG_ROOT", vcpkg_test_tree_loc("normalized"));
+        env::set_var(VCPKG_ROOT, vcpkg_test_tree_loc("normalized"));
         env::set_var("TARGET", "i686-pc-windows-msvc");
         env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir::TempDir::new("vcpkg_tests").unwrap();
@@ -857,12 +862,12 @@ mod tests {
 
     #[test]
     fn custom_target_triplet_in_config() {
-        use env_vars::vcpkg_rs::VCPKGRS_DYNAMIC;
+        use env_vars::vcpkg_rs::{VCPKGRS_DYNAMIC, VCPKG_ROOT};
 
         let _g = LOCK.lock();
 
         clean_env();
-        env::set_var("VCPKG_ROOT", vcpkg_test_tree_loc("normalized"));
+        env::set_var(VCPKG_ROOT, vcpkg_test_tree_loc("normalized"));
         env::set_var("TARGET", "aarch64-apple-ios");
         env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir::TempDir::new("vcpkg_tests").unwrap();
@@ -882,12 +887,12 @@ mod tests {
 
     #[test]
     fn custom_target_triplet_by_env_no_default() {
-        use env_vars::vcpkg_rs::{VCPKGRS_TRIPLET, VCPKGRS_DYNAMIC};
+        use env_vars::vcpkg_rs::{VCPKGRS_TRIPLET, VCPKGRS_DYNAMIC, VCPKG_ROOT};
 
         let _g = LOCK.lock();
 
         clean_env();
-        env::set_var("VCPKG_ROOT", vcpkg_test_tree_loc("normalized"));
+        env::set_var(VCPKG_ROOT, vcpkg_test_tree_loc("normalized"));
         env::set_var("TARGET", "aarch64-apple-doesnotexist");
         env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir::TempDir::new("vcpkg_tests").unwrap();
@@ -906,12 +911,12 @@ mod tests {
 
     #[test]
     fn custom_target_triplet_by_env_with_default() {
-        use env_vars::vcpkg_rs::{VCPKGRS_TRIPLET, VCPKGRS_DYNAMIC};
+        use env_vars::vcpkg_rs::{VCPKGRS_TRIPLET, VCPKGRS_DYNAMIC, VCPKG_ROOT};
 
         let _g = LOCK.lock();
 
         clean_env();
-        env::set_var("VCPKG_ROOT", vcpkg_test_tree_loc("normalized"));
+        env::set_var(VCPKG_ROOT, vcpkg_test_tree_loc("normalized"));
         env::set_var("TARGET", "aarch64-apple-ios");
         env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir::TempDir::new("vcpkg_tests").unwrap();
@@ -962,9 +967,11 @@ mod tests {
 
     #[test]
     fn pc_files_reordering() {
+        use env_vars::vcpkg_rs::VCPKG_ROOT;
+
         let _g = LOCK.lock();
         clean_env();
-        env::set_var("VCPKG_ROOT", vcpkg_test_tree_loc("normalized"));
+        env::set_var(VCPKG_ROOT, vcpkg_test_tree_loc("normalized"));
         env::set_var("TARGET", "x86_64-unknown-linux-gnu");
         // env::set_var("VCPKGRS_DYNAMIC", "1");
         let tmp_dir = tempdir::TempDir::new("vcpkg_tests").unwrap();
@@ -1148,11 +1155,11 @@ mod tests {
     }
 
     fn clean_env() {
-        use env_vars::vcpkg_rs::{VCPKGRS_TRIPLET, VCPKGRS_DISABLE, VCPKGRS_DYNAMIC};
+        use env_vars::vcpkg_rs::{VCPKGRS_TRIPLET, VCPKGRS_DISABLE, VCPKGRS_DYNAMIC, VCPKG_ROOT};
         use env_vars::vcpkg_rs::prefix::VCPKGRS_NO_;
 
         env::remove_var("TARGET");
-        env::remove_var("VCPKG_ROOT");
+        env::remove_var(VCPKG_ROOT);
         env::remove_var(VCPKGRS_DYNAMIC);
         env::remove_var("RUSTFLAGS");
         env::remove_var("CARGO_CFG_TARGET_FEATURE");
