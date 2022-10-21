@@ -111,13 +111,13 @@ use std::io::{BufRead, BufReader, Read};
 use std::path::{Path, PathBuf};
 
 mod config;
-mod env_vars;
 mod error;
 mod library;
 mod pc_file;
 mod port;
 mod target_triplet;
 mod vcpkg_target;
+mod env_vars;
 
 pub use config::Config;
 pub use error::Error;
@@ -883,7 +883,7 @@ mod tests {
 
     #[test]
     fn custom_target_triplet_by_env_no_default() {
-        use env_vars::vcpkg_rs::{VCPKGRS_DYNAMIC, VCPKGRS_TRIPLET};
+        use env_vars::vcpkg_rs::{VCPKGRS_TRIPLET, VCPKGRS_DYNAMIC};
 
         let _g = LOCK.lock();
 
@@ -907,7 +907,7 @@ mod tests {
 
     #[test]
     fn custom_target_triplet_by_env_with_default() {
-        use env_vars::vcpkg_rs::{VCPKGRS_DYNAMIC, VCPKGRS_TRIPLET};
+        use env_vars::vcpkg_rs::{VCPKGRS_TRIPLET, VCPKGRS_DYNAMIC};
 
         let _g = LOCK.lock();
 
@@ -1149,8 +1149,8 @@ mod tests {
     }
 
     fn clean_env() {
+        use env_vars::vcpkg_rs::{VCPKGRS_TRIPLET, VCPKGRS_DISABLE, VCPKGRS_DYNAMIC};
         use env_vars::vcpkg_rs::prefix::VCPKGRS_NO_;
-        use env_vars::vcpkg_rs::{VCPKGRS_DISABLE, VCPKGRS_DYNAMIC, VCPKGRS_TRIPLET};
 
         env::remove_var("TARGET");
         env::remove_var("VCPKG_ROOT");
@@ -1160,7 +1160,6 @@ mod tests {
         env::remove_var(VCPKGRS_DISABLE);
         env::remove_var(format!("{}_LIBMYSQL", VCPKGRS_NO_));
         env::remove_var(VCPKGRS_TRIPLET);
-        // should this function clean VCPKGRS_NO_FOO?
     }
 
     // path to a to vcpkg installation to test against
