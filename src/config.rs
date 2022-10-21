@@ -67,6 +67,7 @@ impl Config {
     /// set on the builder.
     pub fn find_package(&mut self, port_name: &str) -> Result<Library, Error> {
         use crate::env_vars::vcpkg_rs::prefix::VCPKGRS_NO_;
+        use crate::env_vars::vcpkg_rs::suffix::_NO_VCPKG;
         use crate::env_vars::vcpkg_rs::{NO_VCPKG, VCPKGRS_DISABLE, VCPKGRS_DYNAMIC};
 
         // determine the target type, bailing out if it is not some
@@ -90,7 +91,7 @@ impl Config {
         }
 
         // bail out if requested to skip this package (old)
-        let abort_var_name = format!("{}_NO_VCPKG", envify(port_name));
+        let abort_var_name = format!("{}{}", envify(port_name), _NO_VCPKG);
         if env::var_os(&abort_var_name).is_some() {
             return Err(Error::DisabledByEnv(abort_var_name));
         }
@@ -273,6 +274,8 @@ impl Config {
     /// Deprecated in favor of the find_package function
     #[doc(hidden)]
     pub fn probe(&mut self, port_name: &str) -> Result<Library, Error> {
+        use crate::env_vars::vcpkg_rs::prefix::VCPKGRS_NO_;
+        use crate::env_vars::vcpkg_rs::suffix::_NO_VCPKG;
         use crate::env_vars::vcpkg_rs::{NO_VCPKG, VCPKGRS_DISABLE, VCPKGRS_DYNAMIC};
 
         // determine the target type, bailing out if it is not some
@@ -290,13 +293,13 @@ impl Config {
         }
 
         // bail out if requested to skip this package
-        let abort_var_name = format!("VCPKGRS_NO_{}", envify(port_name));
+        let abort_var_name = format!("{}{}", VCPKGRS_NO_, envify(port_name));
         if env::var_os(&abort_var_name).is_some() {
             return Err(Error::DisabledByEnv(abort_var_name));
         }
 
         // bail out if requested to skip this package (old)
-        let abort_var_name = format!("{}_NO_VCPKG", envify(port_name));
+        let abort_var_name = format!("{}{}", envify(port_name), _NO_VCPKG);
         if env::var_os(&abort_var_name).is_some() {
             return Err(Error::DisabledByEnv(abort_var_name));
         }

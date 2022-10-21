@@ -12,3 +12,7 @@ pub(crate) const ARBITRARY_VCPKGRS_NO_FOO: &'static str = concat!("VCPKGRS_NO_",
 pub(crate) mod prefix {
     pub(crate) const VCPKGRS_NO_: &'static str = "VCPKGRS_NO_";
 }
+
+pub(crate) mod suffix {
+    pub(crate) const _NO_VCPKG: &'static str = "_NO_VCPKG";
+}
