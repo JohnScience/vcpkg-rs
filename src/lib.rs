@@ -124,8 +124,7 @@ pub(crate) use vcpkg_target::VcpkgTarget;
 pub(crate) use target_triplet::TargetTriplet;
 pub(crate) use port::Port;
 
-use pc_file::PcFile;
-use pc_file::PcFiles;
+use pc_file::{PcFile, PcFiles};
 
 /// Configuration options for finding packages, setting up the tree and emitting metadata to cargo
 #[derive(Default)]
