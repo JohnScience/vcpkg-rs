@@ -830,11 +830,12 @@ mod tests {
     #[test]
     fn link_dependencies_after_port() {
         use env_vars::vcpkg_rs::{VCPKGRS_DYNAMIC, VCPKG_ROOT};
+        use env_vars::cargo::build_rs::TARGET;
 
         let _g = LOCK.lock();
         clean_env();
         env::set_var(VCPKG_ROOT, vcpkg_test_tree_loc("normalized"));
-        env::set_var("TARGET", "i686-pc-windows-msvc");
+        env::set_var(TARGET, "i686-pc-windows-msvc");
         env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir().unwrap();
         env::set_var("OUT_DIR", tmp_dir.path());
@@ -872,12 +873,13 @@ mod tests {
     #[test]
     fn custom_target_triplet_in_config() {
         use env_vars::vcpkg_rs::{VCPKGRS_DYNAMIC, VCPKG_ROOT};
+        use env_vars::cargo::build_rs::TARGET;
 
         let _g = LOCK.lock();
 
         clean_env();
         env::set_var(VCPKG_ROOT, vcpkg_test_tree_loc("normalized"));
-        env::set_var("TARGET", "aarch64-apple-ios");
+        env::set_var(TARGET, "aarch64-apple-ios");
         env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir().unwrap();
         env::set_var("OUT_DIR", tmp_dir.path());
@@ -897,12 +899,13 @@ mod tests {
     #[test]
     fn custom_target_triplet_by_env_no_default() {
         use env_vars::vcpkg_rs::{VCPKGRS_TRIPLET, VCPKGRS_DYNAMIC, VCPKG_ROOT};
+        use env_vars::cargo::build_rs::TARGET;
 
         let _g = LOCK.lock();
 
         clean_env();
         env::set_var(VCPKG_ROOT, vcpkg_test_tree_loc("normalized"));
-        env::set_var("TARGET", "aarch64-apple-doesnotexist");
+        env::set_var(TARGET, "aarch64-apple-doesnotexist");
         env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir().unwrap();
         env::set_var("OUT_DIR", tmp_dir.path());
@@ -921,12 +924,13 @@ mod tests {
     #[test]
     fn custom_target_triplet_by_env_with_default() {
         use env_vars::vcpkg_rs::{VCPKGRS_TRIPLET, VCPKGRS_DYNAMIC, VCPKG_ROOT};
+        use env_vars::cargo::build_rs::TARGET;
 
         let _g = LOCK.lock();
 
         clean_env();
         env::set_var(VCPKG_ROOT, vcpkg_test_tree_loc("normalized"));
-        env::set_var("TARGET", "aarch64-apple-ios");
+        env::set_var(TARGET, "aarch64-apple-ios");
         env::set_var(VCPKGRS_DYNAMIC, "1");
         let tmp_dir = tempdir().unwrap();
         env::set_var("OUT_DIR", tmp_dir.path());
@@ -977,11 +981,12 @@ mod tests {
     #[test]
     fn pc_files_reordering() {
         use env_vars::vcpkg_rs::VCPKG_ROOT;
+        use env_vars::cargo::build_rs::TARGET;
 
         let _g = LOCK.lock();
         clean_env();
         env::set_var(VCPKG_ROOT, vcpkg_test_tree_loc("normalized"));
-        env::set_var("TARGET", "x86_64-unknown-linux-gnu");
+        env::set_var(TARGET, "x86_64-unknown-linux-gnu");
         // env::set_var("VCPKGRS_DYNAMIC", "1");
         let tmp_dir = tempdir().unwrap();
         env::set_var("OUT_DIR", tmp_dir.path());
@@ -1166,8 +1171,9 @@ mod tests {
     fn clean_env() {
         use env_vars::vcpkg_rs::{VCPKGRS_TRIPLET, VCPKGRS_DISABLE, VCPKGRS_DYNAMIC, VCPKG_ROOT};
         use env_vars::vcpkg_rs::prefix::VCPKGRS_NO_;
+        use env_vars::cargo::build_rs::TARGET;
 
-        env::remove_var("TARGET");
+        env::remove_var(TARGET);
         env::remove_var(VCPKG_ROOT);
         env::remove_var(VCPKGRS_DYNAMIC);
         env::remove_var("RUSTFLAGS");
