@@ -42,7 +42,7 @@ impl Library {
             dll_paths: Vec::new(),
             include_paths: Vec::new(),
             cargo_metadata: Vec::new(),
-            is_static: is_static,
+            is_static,
             found_dlls: Vec::new(),
             found_libs: Vec::new(),
             found_names: Vec::new(),

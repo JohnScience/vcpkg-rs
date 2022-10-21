@@ -90,8 +90,8 @@ impl PcFile {
 
         Ok(PcFile {
             id: id.to_string(),
-            libs: libs,
-            deps: deps,
+            libs,
+            deps,
         })
     }
 }
