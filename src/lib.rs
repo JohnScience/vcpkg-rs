@@ -246,7 +246,8 @@ fn validate_vcpkg_root(path: &PathBuf) -> Result<(), Error> {
     }
 }
 
-fn find_vcpkg_target(cfg: &Config, target_triplet: &TargetTriplet) -> Result<VcpkgTarget, Error> {
+// Should it be an associated function of Config?
+pub(crate) fn find_vcpkg_target(cfg: &Config, target_triplet: &TargetTriplet) -> Result<VcpkgTarget, Error> {
     let vcpkg_root = try!(find_vcpkg_root(&cfg));
     try!(validate_vcpkg_root(&vcpkg_root));
 
@@ -379,7 +380,7 @@ fn load_port_file(
     Ok(())
 }
 
-fn load_ports(target: &VcpkgTarget) -> Result<BTreeMap<String, Port>, Error> {
+pub(crate) fn load_ports(target: &VcpkgTarget) -> Result<BTreeMap<String, Port>, Error> {
     let mut ports: BTreeMap<String, Port> = BTreeMap::new();
 
     let mut port_info: Vec<BTreeMap<String, String>> = Vec::new();
@@ -499,14 +500,14 @@ pub(crate) fn remove_item(cont: &mut Vec<String>, item: &String) -> Option<Strin
     }
 }
 
-fn envify(name: &str) -> String {
+pub(crate) fn envify(name: &str) -> String {
     name.chars()
         .map(|c| c.to_ascii_uppercase())
         .map(|c| if c == '-' { '_' } else { c })
         .collect()
 }
 
-fn msvc_target() -> Result<TargetTriplet, Error> {
+pub(crate) fn msvc_target() -> Result<TargetTriplet, Error> {
     let is_definitely_dynamic = env::var("VCPKGRS_DYNAMIC").is_ok();
     let target = env::var("TARGET").unwrap_or(String::new());
     let is_static = env::var("CARGO_CFG_TARGET_FEATURE")

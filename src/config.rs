@@ -3,7 +3,7 @@ use std::env;
 use std::collections::BTreeMap;
 use std::fs;
 
-use crate::{TargetTriplet, Error, Library, Port, VcpkgTarget};
+use crate::{TargetTriplet, Error, Library, Port, VcpkgTarget, msvc_target, envify, find_vcpkg_target, load_ports, remove_item};
 
 /// Configuration options for finding packages, setting up the tree and emitting metadata to cargo
 #[derive(Default)]
