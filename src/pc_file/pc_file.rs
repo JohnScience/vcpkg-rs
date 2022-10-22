@@ -5,7 +5,7 @@ use std::path::Path;
 use crate::{Error, TargetTriplet, VcpkgTarget};
 
 /// Parsed knowledge from a .pc file.
-/// 
+///
 /// Learn more about .pc files here:
 /// * <https://manpages.ubuntu.com/manpages/focal/man5/pc.5.html>
 /// * <https://linux.die.net/man/1/pkg-config>
@@ -24,18 +24,19 @@ impl PcFile {
         // Extract the pkg-config name.
         let id = path
             .file_stem()
-            .ok_or_else(|| Error::VcpkgInstallation(format!(
-                "pkg-config file {} has bogus name",
-                path.to_string_lossy()
-            )))?
-        .to_string_lossy();
+            .ok_or_else(|| {
+                Error::VcpkgInstallation(format!(
+                    "pkg-config file {} has bogus name",
+                    path.to_string_lossy()
+                ))
+            })?
+            .to_string_lossy();
         // Read through the file and gather what we want.
         let mut file = File::open(path)
             .map_err(|_| Error::VcpkgInstallation(format!("Couldn't open {}", path.display())))?;
         let mut pc_file_contents = String::new();
 
-        file
-            .read_to_string(&mut pc_file_contents)
+        file.read_to_string(&mut pc_file_contents)
             .map_err(|_| Error::VcpkgInstallation(format!("Couldn't read {}", path.display())))?;
         PcFile::from_str(&id, &pc_file_contents, &vcpkg_target.target_triplet)
     }
@@ -48,11 +49,12 @@ impl PcFile {
         let mut libs = Vec::new();
         let mut deps = Vec::new();
 
-        let preparsed_lines_iter = s.lines()
+        let preparsed_lines_iter = s
+            .lines()
             .filter_map(|line| line.split_once(|c| c == ':'))
             // we defer the evaluation of split_whitespace() until we actually need it
-            .map(|(prop_kw, remainder)| (prop_kw, move || { remainder.split_whitespace() }));
-        
+            .map(|(prop_kw, remainder)| (prop_kw, move || remainder.split_whitespace()));
+
         // Read abour property keywords of .pc files here:
         // https://manpages.ubuntu.com/manpages/focal/man5/pc.5.html#:~:text=has%20been%20done.-,PROPERTY%20KEYWORDS,-Name%20%20%20%20The%20displayed
         for (prop_kw, split_remainder) in preparsed_lines_iter {
@@ -71,7 +73,7 @@ impl PcFile {
                         }
                         deps.push(dep.to_owned());
                     }
-                },
+                }
                 "Libs" => {
                     for lib_flag in split_remainder() {
                         if lib_flag.starts_with("-l") {
@@ -89,8 +91,8 @@ impl PcFile {
                             libs.push(lib);
                         }
                     }
-                },
-                _ => { continue }
+                }
+                _ => continue,
             }
         }
 
