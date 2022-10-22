@@ -20,7 +20,7 @@ pub(crate) struct PcFile {
 }
 
 impl PcFile {
-    pub(crate) fn parse_pc_file(vcpkg_target: &VcpkgTarget, path: &Path) -> Result<Self, Error> {
+    pub(crate) fn parse(vcpkg_target: &VcpkgTarget, path: &Path) -> Result<Self, Error> {
         // Extract the pkg-config name.
         let id = path
             .file_stem()

@@ -35,7 +35,7 @@ impl PcFiles {
             if dir_entry.path().extension() != Some(OsStr::new("pc")) {
                 continue;
             }
-            let pc_file = PcFile::parse_pc_file(vcpkg_target, &dir_entry.path())?;
+            let pc_file = PcFile::parse(vcpkg_target, &dir_entry.path())?;
             files.insert(pc_file.id.to_owned(), pc_file);
         }
         Ok(PcFiles { files })
