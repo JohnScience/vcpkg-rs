@@ -58,7 +58,7 @@ impl PcFile {
                 while let Some(dep) = requires_args.next() {
                     // Drop any versioning requirements, we only care about library order and rely upon
                     // port dependencies to resolve versioning.
-                    if let Some(_) = dep.find(|c| c == '=' || c == '<' || c == '>') {
+                    if dep.contains(|c| c == '=' || c == '<' || c == '>') {
                         requires_args.next();
                         continue;
                     }
