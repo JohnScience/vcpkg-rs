@@ -44,49 +44,47 @@ impl PcFile {
         let mut libs = Vec::new();
         let mut deps = Vec::new();
 
-        for line in s.lines() {
+        let preparsed_lines_iter = s.lines()
+            .filter_map(|line| line.split_once(|c| c == ':'))
+            // we defer the evaluation of split_whitespace() until we actually need it
+            .map(|(prefix, remainder)| (prefix, move || { remainder.split_whitespace() }));
+
+        for (prefix, split_remainder) in preparsed_lines_iter {
             // We could collect a lot of stuff here, but we only care about Requires and Libs for the moment.
-            if line.starts_with("Requires:") {
-                let mut requires_args = line
-                    .split(":")
-                    .skip(1)
-                    .next()
-                    .unwrap_or("")
-                    .split_whitespace()
-                    .flat_map(|e| e.split(","))
-                    .filter(|s| !s.is_empty());
-                while let Some(dep) = requires_args.next() {
-                    // Drop any versioning requirements, we only care about library order and rely upon
-                    // port dependencies to resolve versioning.
-                    if dep.contains(|c| c == '=' || c == '<' || c == '>') {
-                        requires_args.next();
-                        continue;
+            match prefix {
+                "Requires" => {
+                    let mut requires_args = split_remainder()
+                        .flat_map(|e| e.split(","))
+                        .filter(|s| !s.is_empty());
+                    while let Some(dep) = requires_args.next() {
+                        // Drop any versioning requirements, we only care about library order and rely upon
+                        // port dependencies to resolve versioning.
+                        if dep.contains(|c| c == '=' || c == '<' || c == '>') {
+                            requires_args.next();
+                            continue;
+                        }
+                        deps.push(dep.to_owned());
                     }
-                    deps.push(dep.to_owned());
-                }
-            } else if line.starts_with("Libs:") {
-                let lib_flags = line
-                    .split(":")
-                    .skip(1)
-                    .next()
-                    .unwrap_or("")
-                    .split_whitespace();
-                for lib_flag in lib_flags {
-                    if lib_flag.starts_with("-l") {
-                        // reconstruct the library name.
-                        let lib = format!(
-                            "{}{}.{}",
-                            if target_triplet.strip_lib_prefix {
-                                "lib"
-                            } else {
-                                ""
-                            },
-                            lib_flag.trim_left_matches("-l"),
-                            target_triplet.lib_suffix
-                        );
-                        libs.push(lib);
+                },
+                "Libs" => {
+                    for lib_flag in split_remainder() {
+                        if lib_flag.starts_with("-l") {
+                            // reconstruct the library name.
+                            let lib = format!(
+                                "{}{}.{}",
+                                if target_triplet.strip_lib_prefix {
+                                    "lib"
+                                } else {
+                                    ""
+                                },
+                                lib_flag.trim_left_matches("-l"),
+                                target_triplet.lib_suffix
+                            );
+                            libs.push(lib);
+                        }
                     }
-                }
+                },
+                _ => { continue }
             }
         }
 
