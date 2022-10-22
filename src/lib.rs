@@ -698,7 +698,7 @@ mod tests {
         env::set_var(VCPKG_ROOT, vcpkg_test_tree_loc("normalized"));
         env::set_var(TARGET, "x86_64-pc-windows-msvc");
         let tmp_dir = tempdir::TempDir::new("vcpkg_tests").unwrap();
-        env::set_var(VCPKG_ROOT, tmp_dir.path());
+        env::set_var(OUT_DIR, tmp_dir.path());
 
         // CARGO_CFG_TARGET_FEATURE is set in response to
         // RUSTFLAGS=-Ctarget-feature=+crt-static. It would
