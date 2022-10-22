@@ -55,7 +55,7 @@ impl PcFile {
                     .split_whitespace()
                     .flat_map(|e| e.split(","))
                     .filter(|s| !s.is_empty());
-                for dep in requires_args.next() {
+                while let Some(dep) = requires_args.next() {
                     // Drop any versioning requirements, we only care about library order and rely upon
                     // port dependencies to resolve versioning.
                     if dep.contains(|c| c == '=' || c == '<' || c == '>') {
