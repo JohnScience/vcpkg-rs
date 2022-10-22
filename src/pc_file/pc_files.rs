@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use super::PcFile;
 use crate::{remove_item, Error, VcpkgTarget};
 
-/// Collection of PcFile.  Can be built and queried as a set of .pc files.
+/// Collection of [`PcFile`]s.  Can be built and queried as a set of .pc files.
 #[derive(Debug)]
 pub(crate) struct PcFiles {
     pub(crate) files: HashMap<String, PcFile>,
