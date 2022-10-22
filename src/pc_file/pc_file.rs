@@ -54,7 +54,7 @@ impl PcFile {
                     .unwrap_or("")
                     .split_whitespace()
                     .flat_map(|e| e.split(","))
-                    .filter(|s| *s != "");
+                    .filter(|s| !s.is_empty());
                 while let Some(dep) = requires_args.next() {
                     // Drop any versioning requirements, we only care about library order and rely upon
                     // port dependencies to resolve versioning.
