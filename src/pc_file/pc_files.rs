@@ -87,8 +87,9 @@ impl PcFiles {
     }
     /// Locate which PcFile contains this library, if any.
     pub(crate) fn locate_pc_file_by_lib(&self, lib: &str) -> Option<&PcFile> {
-        self.files.iter().map(|(_id, pc_file)| pc_file).find(|pc_file| {
-            pc_file.libs.iter().map(String::as_str).any(|s| s == lib)
-        })
+        self.files
+            .iter()
+            .map(|(_id, pc_file)| pc_file)
+            .find(|pc_file| pc_file.libs.iter().map(String::as_str).any(|s| s == lib))
     }
 }
