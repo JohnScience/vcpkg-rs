@@ -5,6 +5,10 @@ use std::path::Path;
 use crate::{Error, TargetTriplet, VcpkgTarget};
 
 /// Parsed knowledge from a .pc file.
+/// 
+/// Learn more about .pc files here:
+/// * <https://manpages.ubuntu.com/manpages/focal/man5/pc.5.html>
+/// * <https://linux.die.net/man/1/pkg-config>
 #[derive(Debug)]
 pub(crate) struct PcFile {
     /// The pkg-config name of this library.
