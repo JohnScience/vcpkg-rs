@@ -51,11 +51,13 @@ impl PcFile {
         let preparsed_lines_iter = s.lines()
             .filter_map(|line| line.split_once(|c| c == ':'))
             // we defer the evaluation of split_whitespace() until we actually need it
-            .map(|(prefix, remainder)| (prefix, move || { remainder.split_whitespace() }));
-
-        for (prefix, split_remainder) in preparsed_lines_iter {
+            .map(|(prop_kw, remainder)| (prop_kw, move || { remainder.split_whitespace() }));
+        
+        // Read abour property keywords of .pc files here:
+        // https://manpages.ubuntu.com/manpages/focal/man5/pc.5.html#:~:text=has%20been%20done.-,PROPERTY%20KEYWORDS,-Name%20%20%20%20The%20displayed
+        for (prop_kw, split_remainder) in preparsed_lines_iter {
             // We could collect a lot of stuff here, but we only care about Requires and Libs for the moment.
-            match prefix {
+            match prop_kw {
                 "Requires" => {
                     let mut requires_args = split_remainder()
                         .flat_map(|e| e.split(","))
