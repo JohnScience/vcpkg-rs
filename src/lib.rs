@@ -127,8 +127,8 @@ pub(crate) use port::Port;
 pub(crate) use target_triplet::TargetTriplet;
 pub(crate) use vcpkg_target::VcpkgTarget;
 
-use pc_file::{PcFile, PcFiles};
 use env_vars::prelude::*;
+use pc_file::{PcFile, PcFiles};
 
 /// Deprecated in favor of the find_package function
 #[doc(hidden)]
@@ -171,10 +171,12 @@ pub fn find_vcpkg_root(cfg: &Config) -> Result<PathBuf, Error> {
             let file = BufReader::new(&file);
 
             for line in file.lines() {
-                let line = line.map_err(|_| Error::VcpkgNotFound(format!(
-                    "Parsing of {} failed.",
-                    vcpkg_user_targets_path.to_string_lossy().to_owned()
-                )))?;
+                let line = line.map_err(|_| {
+                    Error::VcpkgNotFound(format!(
+                        "Parsing of {} failed.",
+                        vcpkg_user_targets_path.to_string_lossy().to_owned()
+                    ))
+                })?;
                 let mut split = line.split("Project=\"");
                 split.next(); // eat anything before Project="
                 if let Some(found) = split.next() {
@@ -291,10 +293,12 @@ fn load_port_manifest(
     let mut dlls = Vec::new();
     let mut libs = Vec::new();
 
-    let f = File::open(&manifest_file).map_err(|_| Error::VcpkgInstallation(format!(
-        "Could not open port manifest file {}",
-        manifest_file.display()
-    )))?;
+    let f = File::open(&manifest_file).map_err(|_| {
+        Error::VcpkgInstallation(format!(
+            "Could not open port manifest file {}",
+            manifest_file.display()
+        ))
+    })?;
 
     let file = BufReader::new(&f);
 
@@ -345,11 +349,13 @@ fn load_port_file(
     filename: &PathBuf,
     port_info: &mut Vec<BTreeMap<String, String>>,
 ) -> Result<(), Error> {
-    let f = File::open(&filename).map_err(|e| Error::VcpkgInstallation(format!(
-        "Could not open status file at {}: {}",
-        filename.display(),
-        e
-    )))?;
+    let f = File::open(&filename).map_err(|e| {
+        Error::VcpkgInstallation(format!(
+            "Could not open status file at {}: {}",
+            filename.display(),
+            e
+        ))
+    })?;
     let file = BufReader::new(&f);
     let mut current: BTreeMap<String, String> = BTreeMap::new();
     for line in file.lines() {
@@ -397,10 +403,9 @@ pub(crate) fn load_ports(target: &VcpkgTarget) -> Result<BTreeMap<String, Port>,
     // load updates to the status file that have yet to be normalized
     let status_update_dir = target.status_path.join("updates");
 
-    let paths = fs::read_dir(status_update_dir).map_err(|e| Error::VcpkgInstallation(format!(
-        "could not read status file updates dir: {}",
-        e
-    )))?;
+    let paths = fs::read_dir(status_update_dir).map_err(|e| {
+        Error::VcpkgInstallation(format!("could not read status file updates dir: {}", e))
+    })?;
 
     // get all of the paths of the update files into a Vec<PathBuf>
     let mut paths = paths
@@ -455,12 +460,8 @@ pub(crate) fn load_ports(target: &VcpkgTarget) -> Result<BTreeMap<String, Port>,
                 match (current.get("Version"), feature) {
                     (Some(version), _) => {
                         // this failing here and bailing out causes everything to fail
-                        let lib_info = load_port_manifest(
-                            &target.status_path,
-                            &name,
-                            version,
-                            &target
-                        )?;
+                        let lib_info =
+                            load_port_manifest(&target.status_path, &name, version, &target)?;
                         let port = Port {
                             dlls: lib_info.0,
                             libs: lib_info.1,
@@ -501,7 +502,13 @@ pub(crate) fn remove_item(cont: &mut Vec<String>, item: &String) -> Option<Strin
 
 pub(crate) fn envify(name: &str) -> String {
     name.chars()
-        .map(|c| if c == '-' { '_' } else { c.to_ascii_uppercase() })
+        .map(|c| {
+            if c == '-' {
+                '_'
+            } else {
+                c.to_ascii_uppercase()
+            }
+        })
         .collect()
 }
 
