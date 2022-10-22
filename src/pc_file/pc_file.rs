@@ -47,19 +47,23 @@ impl PcFile {
         for line in s.lines() {
             // We could collect a lot of stuff here, but we only care about Requires and Libs for the moment.
             if line.starts_with("Requires:") {
-                let requires_args = line
+                let mut requires_args = line
                     .split(":")
                     .skip(1)
                     .next()
                     .unwrap_or("")
                     .split_whitespace()
                     .flat_map(|e| e.split(","))
-                    .filter(|s| !s.is_empty())
+                    .filter(|s| !s.is_empty());
+                for dep in requires_args.next() {
                     // Drop any versioning requirements, we only care about library order and rely upon
                     // port dependencies to resolve versioning.
-                    .filter(|dep| !dep.contains(|c| c == '=' || c == '<' || c == '>'))
-                    .map(String::from);
-                deps.extend(requires_args);
+                    if dep.contains(|c| c == '=' || c == '<' || c == '>') {
+                        requires_args.next();
+                        continue;
+                    }
+                    deps.push(dep.to_owned());
+                }
             } else if line.starts_with("Libs:") {
                 let lib_flags = line
                     .split(":")
