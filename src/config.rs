@@ -106,7 +106,7 @@ impl Config {
                 return Err(Error::LibNotFound(format!(
                     "package {} is not installed for vcpkg triplet {}",
                     port_name.to_owned(),
-                    vcpkg_target.target_triplet.triplet
+                    vcpkg_target.target_triplet.vcpkg_triplet
                 )));
             }
 
@@ -180,7 +180,7 @@ impl Config {
 
         let mut lib = Library::new(
             vcpkg_target.target_triplet.is_static,
-            &vcpkg_target.target_triplet.triplet,
+            &vcpkg_target.target_triplet.vcpkg_triplet,
         );
 
         if self.emit_includes {
@@ -318,7 +318,7 @@ impl Config {
 
         let mut lib = Library::new(
             vcpkg_target.target_triplet.is_static,
-            &vcpkg_target.target_triplet.triplet,
+            &vcpkg_target.target_triplet.vcpkg_triplet,
         );
 
         if self.emit_includes {
