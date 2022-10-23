@@ -2,7 +2,7 @@ use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 
-use crate::{Error, TargetTriplet, VcpkgTarget};
+use crate::{Error, VcpkgTriplet, VcpkgTarget};
 
 /// Parsed knowledge from a .pc file.
 ///
@@ -44,7 +44,7 @@ impl PcFile {
     pub(crate) fn from_str(
         id: &str,
         s: &str,
-        target_triplet: &TargetTriplet,
+        target_triplet: &VcpkgTriplet,
     ) -> Result<Self, Error> {
         let mut libs = Vec::new();
         let mut deps = Vec::new();
