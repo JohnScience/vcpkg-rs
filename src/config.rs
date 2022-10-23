@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 use crate::env_vars::cargo::build_rs::OUT_DIR;
 use crate::{
     envify, find_vcpkg_target, load_ports, msvc_target, remove_item, Error, Library, Port,
-    TargetTriplet, VcpkgTarget,
+    VcpkgTriplet, VcpkgTarget,
 };
 
 /// Configuration options for finding packages, setting up the tree and emitting metadata to cargo
@@ -30,7 +30,7 @@ pub struct Config {
     /// override VCPKG_ROOT environment variable
     pub(crate) vcpkg_root: Option<PathBuf>,
 
-    pub(crate) target: Option<TargetTriplet>,
+    pub(crate) target: Option<VcpkgTriplet>,
 }
 
 impl Config {
@@ -42,7 +42,7 @@ impl Config {
         }
     }
 
-    fn get_target_triplet(&mut self) -> Result<TargetTriplet, Error> {
+    fn get_target_triplet(&mut self) -> Result<VcpkgTriplet, Error> {
         use crate::env_vars::vcpkg_rs::VCPKGRS_TRIPLET;
 
         if self.target.is_none() {
@@ -106,7 +106,7 @@ impl Config {
                 return Err(Error::LibNotFound(format!(
                     "package {} is not installed for vcpkg triplet {}",
                     port_name.to_owned(),
-                    vcpkg_target.target_triplet.vcpkg_triplet
+                    vcpkg_target.target_triplet.name
                 )));
             }
 
@@ -180,7 +180,7 @@ impl Config {
 
         let mut lib = Library::new(
             vcpkg_target.target_triplet.is_static,
-            &vcpkg_target.target_triplet.vcpkg_triplet,
+            &vcpkg_target.target_triplet.name,
         );
 
         if self.emit_includes {
@@ -318,7 +318,7 @@ impl Config {
 
         let mut lib = Library::new(
             vcpkg_target.target_triplet.is_static,
-            &vcpkg_target.target_triplet.vcpkg_triplet,
+            &vcpkg_target.target_triplet.name,
         );
 
         if self.emit_includes {

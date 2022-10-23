@@ -124,7 +124,7 @@ pub use error::Error;
 pub use library::Library;
 
 pub(crate) use port::Port;
-pub(crate) use target_triplet::TargetTriplet;
+pub(crate) use target_triplet::VcpkgTriplet;
 pub(crate) use vcpkg_target::VcpkgTarget;
 
 use env_vars::prelude::*;
@@ -253,7 +253,7 @@ fn validate_vcpkg_root(path: &PathBuf) -> Result<(), Error> {
 // Should it be an associated function of Config?
 pub(crate) fn find_vcpkg_target(
     cfg: &Config,
-    target_triplet: &TargetTriplet,
+    target_triplet: &VcpkgTriplet,
 ) -> Result<VcpkgTarget, Error> {
     let vcpkg_root = find_vcpkg_root(&cfg)?;
     validate_vcpkg_root(&vcpkg_root)?;
@@ -262,7 +262,7 @@ pub(crate) fn find_vcpkg_target(
     base.push("installed");
     let status_path = base.join("vcpkg");
 
-    base.push(&target_triplet.vcpkg_triplet);
+    base.push(&target_triplet.name);
 
     let lib_path = base.join("lib");
     let bin_path = base.join("bin");
@@ -287,7 +287,7 @@ fn load_port_manifest(
 ) -> Result<(Vec<String>, Vec<String>), Error> {
     let manifest_file = path.join("info").join(format!(
         "{}_{}_{}.list",
-        port, version, vcpkg_target.target_triplet.vcpkg_triplet
+        port, version, vcpkg_target.target_triplet.name
     ));
 
     let mut dlls = Vec::new();
@@ -302,8 +302,8 @@ fn load_port_manifest(
 
     let file = BufReader::new(&f);
 
-    let dll_prefix = Path::new(&vcpkg_target.target_triplet.vcpkg_triplet).join("bin");
-    let lib_prefix = Path::new(&vcpkg_target.target_triplet.vcpkg_triplet).join("lib");
+    let dll_prefix = Path::new(&vcpkg_target.target_triplet.name).join("bin");
+    let lib_prefix = Path::new(&vcpkg_target.target_triplet.name).join("lib");
 
     for line in file.lines() {
         let line = line.unwrap();
@@ -332,7 +332,7 @@ fn load_port_manifest(
     // Load .pc files for hints about intra-port library ordering.
     let pkg_config_prefix = vcpkg_target
         .packages_path
-        .join(format!("{}_{}", port, vcpkg_target.target_triplet.vcpkg_triplet))
+        .join(format!("{}_{}", port, vcpkg_target.target_triplet.name))
         .join("lib")
         .join("pkgconfig");
     // Try loading the pc files, if they are present. Not all ports have pkgconfig.
@@ -445,7 +445,7 @@ pub(crate) fn load_ports(target: &VcpkgTarget) -> Result<BTreeMap<String, Port>,
     }
 
     for (&(name, arch, feature), current) in &seen_names {
-        if **arch == target.target_triplet.vcpkg_triplet {
+        if **arch == target.target_triplet.name {
             let mut deps = if let Some(deps) = current.get("Depends") {
                 deps.split(", ").map(|x| x.to_owned()).collect()
             } else {
@@ -512,36 +512,36 @@ pub(crate) fn envify(name: &str) -> String {
         .collect()
 }
 
-pub(crate) fn msvc_target() -> Result<TargetTriplet, Error> {
+pub(crate) fn msvc_target() -> Result<VcpkgTriplet, Error> {
     let is_definitely_dynamic = env::var(VCPKGRS_DYNAMIC).is_ok();
     let target = env::var(TARGET).unwrap_or(String::new());
     let is_static = env::var(CARGO_CFG_TARGET_FEATURE)
         .unwrap_or(String::new()) // rustc 1.10
         .contains("crt-static");
     if target == "x86_64-apple-darwin" {
-        Ok(TargetTriplet {
-            vcpkg_triplet: "x64-osx".into(),
+        Ok(VcpkgTriplet {
+            name: "x64-osx".into(),
             is_static: true,
             lib_suffix: "a".into(),
             strip_lib_prefix: true,
         })
     } else if target == "aarch64-apple-darwin" {
-        Ok(TargetTriplet {
-            vcpkg_triplet: "arm64-osx".into(),
+        Ok(VcpkgTriplet {
+            name: "arm64-osx".into(),
             is_static: true,
             lib_suffix: "a".into(),
             strip_lib_prefix: true,
         })
     } else if target == "x86_64-unknown-linux-gnu" {
-        Ok(TargetTriplet {
-            vcpkg_triplet: "x64-linux".into(),
+        Ok(VcpkgTriplet {
+            name: "x64-linux".into(),
             is_static: true,
             lib_suffix: "a".into(),
             strip_lib_prefix: true,
         })
     } else if target == "aarch64-apple-ios" {
-        Ok(TargetTriplet {
-            vcpkg_triplet: "arm64-ios".into(),
+        Ok(VcpkgTriplet {
+            name: "arm64-ios".into(),
             is_static: true,
             lib_suffix: "a".into(),
             strip_lib_prefix: true,
@@ -550,22 +550,22 @@ pub(crate) fn msvc_target() -> Result<TargetTriplet, Error> {
         Err(Error::NotMSVC)
     } else if target.starts_with("x86_64-") {
         if is_static {
-            Ok(TargetTriplet {
-                vcpkg_triplet: "x64-windows-static".into(),
+            Ok(VcpkgTriplet {
+                name: "x64-windows-static".into(),
                 is_static: true,
                 lib_suffix: "lib".into(),
                 strip_lib_prefix: false,
             })
         } else if is_definitely_dynamic {
-            Ok(TargetTriplet {
-                vcpkg_triplet: "x64-windows".into(),
+            Ok(VcpkgTriplet {
+                name: "x64-windows".into(),
                 is_static: false,
                 lib_suffix: "lib".into(),
                 strip_lib_prefix: false,
             })
         } else {
-            Ok(TargetTriplet {
-                vcpkg_triplet: "x64-windows-static-md".into(),
+            Ok(VcpkgTriplet {
+                name: "x64-windows-static-md".into(),
                 is_static: true,
                 lib_suffix: "lib".into(),
                 strip_lib_prefix: false,
@@ -573,22 +573,22 @@ pub(crate) fn msvc_target() -> Result<TargetTriplet, Error> {
         }
     } else if target.starts_with("aarch64") {
         if is_static {
-            Ok(TargetTriplet {
-                vcpkg_triplet: "arm64-windows-static".into(),
+            Ok(VcpkgTriplet {
+                name: "arm64-windows-static".into(),
                 is_static: true,
                 lib_suffix: "lib".into(),
                 strip_lib_prefix: false,
             })
         } else if is_definitely_dynamic {
-            Ok(TargetTriplet {
-                vcpkg_triplet: "arm64-windows".into(),
+            Ok(VcpkgTriplet {
+                name: "arm64-windows".into(),
                 is_static: false,
                 lib_suffix: "lib".into(),
                 strip_lib_prefix: false,
             })
         } else {
-            Ok(TargetTriplet {
-                vcpkg_triplet: "arm64-windows-static-md".into(),
+            Ok(VcpkgTriplet {
+                name: "arm64-windows-static-md".into(),
                 is_static: true,
                 lib_suffix: "lib".into(),
                 strip_lib_prefix: false,
@@ -597,22 +597,22 @@ pub(crate) fn msvc_target() -> Result<TargetTriplet, Error> {
     } else {
         // everything else is x86
         if is_static {
-            Ok(TargetTriplet {
-                vcpkg_triplet: "x86-windows-static".into(),
+            Ok(VcpkgTriplet {
+                name: "x86-windows-static".into(),
                 is_static: true,
                 lib_suffix: "lib".into(),
                 strip_lib_prefix: false,
             })
         } else if is_definitely_dynamic {
-            Ok(TargetTriplet {
-                vcpkg_triplet: "x86-windows".into(),
+            Ok(VcpkgTriplet {
+                name: "x86-windows".into(),
                 is_static: false,
                 lib_suffix: "lib".into(),
                 strip_lib_prefix: false,
             })
         } else {
-            Ok(TargetTriplet {
-                vcpkg_triplet: "x86-windows-static-md".into(),
+            Ok(VcpkgTriplet {
+                name: "x86-windows-static-md".into(),
                 is_static: true,
                 lib_suffix: "lib".into(),
                 strip_lib_prefix: false,

@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use crate::TargetTriplet;
+use crate::VcpkgTriplet;
 
 /// paths and triple for the chosen target
 pub(crate) struct VcpkgTarget {
@@ -14,7 +14,7 @@ pub(crate) struct VcpkgTarget {
     pub(crate) packages_path: PathBuf,
 
     // target-specific settings.
-    pub(crate) target_triplet: TargetTriplet,
+    pub(crate) target_triplet: VcpkgTriplet,
 }
 
 impl VcpkgTarget {
