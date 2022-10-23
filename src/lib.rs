@@ -262,7 +262,7 @@ pub(crate) fn find_vcpkg_target(
     base.push("installed");
     let status_path = base.join("vcpkg");
 
-    base.push(&target_triplet.triplet);
+    base.push(&target_triplet.vcpkg_triplet);
 
     let lib_path = base.join("lib");
     let bin_path = base.join("bin");
@@ -287,7 +287,7 @@ fn load_port_manifest(
 ) -> Result<(Vec<String>, Vec<String>), Error> {
     let manifest_file = path.join("info").join(format!(
         "{}_{}_{}.list",
-        port, version, vcpkg_target.target_triplet.triplet
+        port, version, vcpkg_target.target_triplet.vcpkg_triplet
     ));
 
     let mut dlls = Vec::new();
@@ -302,8 +302,8 @@ fn load_port_manifest(
 
     let file = BufReader::new(&f);
 
-    let dll_prefix = Path::new(&vcpkg_target.target_triplet.triplet).join("bin");
-    let lib_prefix = Path::new(&vcpkg_target.target_triplet.triplet).join("lib");
+    let dll_prefix = Path::new(&vcpkg_target.target_triplet.vcpkg_triplet).join("bin");
+    let lib_prefix = Path::new(&vcpkg_target.target_triplet.vcpkg_triplet).join("lib");
 
     for line in file.lines() {
         let line = line.unwrap();
@@ -332,7 +332,7 @@ fn load_port_manifest(
     // Load .pc files for hints about intra-port library ordering.
     let pkg_config_prefix = vcpkg_target
         .packages_path
-        .join(format!("{}_{}", port, vcpkg_target.target_triplet.triplet))
+        .join(format!("{}_{}", port, vcpkg_target.target_triplet.vcpkg_triplet))
         .join("lib")
         .join("pkgconfig");
     // Try loading the pc files, if they are present. Not all ports have pkgconfig.
@@ -445,7 +445,7 @@ pub(crate) fn load_ports(target: &VcpkgTarget) -> Result<BTreeMap<String, Port>,
     }
 
     for (&(name, arch, feature), current) in &seen_names {
-        if **arch == target.target_triplet.triplet {
+        if **arch == target.target_triplet.vcpkg_triplet {
             let mut deps = if let Some(deps) = current.get("Depends") {
                 deps.split(", ").map(|x| x.to_owned()).collect()
             } else {
@@ -520,28 +520,28 @@ pub(crate) fn msvc_target() -> Result<TargetTriplet, Error> {
         .contains("crt-static");
     if target == "x86_64-apple-darwin" {
         Ok(TargetTriplet {
-            triplet: "x64-osx".into(),
+            vcpkg_triplet: "x64-osx".into(),
             is_static: true,
             lib_suffix: "a".into(),
             strip_lib_prefix: true,
         })
     } else if target == "aarch64-apple-darwin" {
         Ok(TargetTriplet {
-            triplet: "arm64-osx".into(),
+            vcpkg_triplet: "arm64-osx".into(),
             is_static: true,
             lib_suffix: "a".into(),
             strip_lib_prefix: true,
         })
     } else if target == "x86_64-unknown-linux-gnu" {
         Ok(TargetTriplet {
-            triplet: "x64-linux".into(),
+            vcpkg_triplet: "x64-linux".into(),
             is_static: true,
             lib_suffix: "a".into(),
             strip_lib_prefix: true,
         })
     } else if target == "aarch64-apple-ios" {
         Ok(TargetTriplet {
-            triplet: "arm64-ios".into(),
+            vcpkg_triplet: "arm64-ios".into(),
             is_static: true,
             lib_suffix: "a".into(),
             strip_lib_prefix: true,
@@ -551,21 +551,21 @@ pub(crate) fn msvc_target() -> Result<TargetTriplet, Error> {
     } else if target.starts_with("x86_64-") {
         if is_static {
             Ok(TargetTriplet {
-                triplet: "x64-windows-static".into(),
+                vcpkg_triplet: "x64-windows-static".into(),
                 is_static: true,
                 lib_suffix: "lib".into(),
                 strip_lib_prefix: false,
             })
         } else if is_definitely_dynamic {
             Ok(TargetTriplet {
-                triplet: "x64-windows".into(),
+                vcpkg_triplet: "x64-windows".into(),
                 is_static: false,
                 lib_suffix: "lib".into(),
                 strip_lib_prefix: false,
             })
         } else {
             Ok(TargetTriplet {
-                triplet: "x64-windows-static-md".into(),
+                vcpkg_triplet: "x64-windows-static-md".into(),
                 is_static: true,
                 lib_suffix: "lib".into(),
                 strip_lib_prefix: false,
@@ -574,21 +574,21 @@ pub(crate) fn msvc_target() -> Result<TargetTriplet, Error> {
     } else if target.starts_with("aarch64") {
         if is_static {
             Ok(TargetTriplet {
-                triplet: "arm64-windows-static".into(),
+                vcpkg_triplet: "arm64-windows-static".into(),
                 is_static: true,
                 lib_suffix: "lib".into(),
                 strip_lib_prefix: false,
             })
         } else if is_definitely_dynamic {
             Ok(TargetTriplet {
-                triplet: "arm64-windows".into(),
+                vcpkg_triplet: "arm64-windows".into(),
                 is_static: false,
                 lib_suffix: "lib".into(),
                 strip_lib_prefix: false,
             })
         } else {
             Ok(TargetTriplet {
-                triplet: "arm64-windows-static-md".into(),
+                vcpkg_triplet: "arm64-windows-static-md".into(),
                 is_static: true,
                 lib_suffix: "lib".into(),
                 strip_lib_prefix: false,
@@ -598,21 +598,21 @@ pub(crate) fn msvc_target() -> Result<TargetTriplet, Error> {
         // everything else is x86
         if is_static {
             Ok(TargetTriplet {
-                triplet: "x86-windows-static".into(),
+                vcpkg_triplet: "x86-windows-static".into(),
                 is_static: true,
                 lib_suffix: "lib".into(),
                 strip_lib_prefix: false,
             })
         } else if is_definitely_dynamic {
             Ok(TargetTriplet {
-                triplet: "x86-windows".into(),
+                vcpkg_triplet: "x86-windows".into(),
                 is_static: false,
                 lib_suffix: "lib".into(),
                 strip_lib_prefix: false,
             })
         } else {
             Ok(TargetTriplet {
-                triplet: "x86-windows-static-md".into(),
+                vcpkg_triplet: "x86-windows-static-md".into(),
                 is_static: true,
                 lib_suffix: "lib".into(),
                 strip_lib_prefix: false,
