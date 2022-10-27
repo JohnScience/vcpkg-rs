@@ -445,7 +445,7 @@ pub(crate) fn load_ports(target: &VcpkgTarget) -> Result<BTreeMap<String, Port>,
     }
 
     for (&(name, arch, feature), current) in &seen_names {
-        if **arch == target.target_triplet.name {
+        if arch.as_str() == target.target_triplet.name {
             let mut deps = if let Some(deps) = current.get("Depends") {
                 deps.split(", ").map(|x| x.to_owned()).collect()
             } else {
