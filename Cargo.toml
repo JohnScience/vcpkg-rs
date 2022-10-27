@@ -13,6 +13,11 @@ time in order to be used in Cargo build scripts.
 keywords = ["build-dependencies", "windows", "macos", "linux"]
 categories = ["development-tools::build-utils"]
 
+[features]
+# This feature enables llvm names of target triplet components, can be eventually used for extension
+# and for possible use in conjunction with Custom Target feature
+semver_exempt_llvm_ttc = []
+
 [dependencies]
 
 [dev-dependencies]

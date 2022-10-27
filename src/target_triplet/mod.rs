@@ -1,3 +1,7 @@
+mod rustc_support_tier;
+mod arch;
+mod sub;
+
 #[derive(Clone)]
 pub(crate) struct VcpkgTriplet {
     pub(crate) name: String,
@@ -6,7 +10,13 @@ pub(crate) struct VcpkgTriplet {
     pub(crate) strip_lib_prefix: bool,
 }
 
-impl<S: AsRef<str>> From<S> for VcpkgTriplet {
+impl VcpkgTriplet {
+    const NON_WINDOWS_LIB_SUFFIX: &'static str = "a";
+    const WINDOWS_LIB_SUFFIX: &'static str = "lib";
+}
+
+impl<S: AsRef<str>> From<S> for VcpkgTriplet
+{
     fn from(triplet: S) -> VcpkgTriplet {
         let triplet = triplet.as_ref();
         if triplet.contains("windows") {
